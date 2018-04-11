@@ -1,5 +1,5 @@
 # Alarmy
 
-Alarmy is a alarm system based on MQTT.
+Alarmy is an alarm system based on MQTT.
 
 Secure your home now!
