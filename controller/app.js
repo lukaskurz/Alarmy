@@ -1,7 +1,7 @@
 const http = require('http');
 
 const hostname = '127.0.0.1';
-const port = 3000;
+const port = 1883;
 
 var mqtt = require('mqtt');
 var client = mqtt.connect('mqtt://vm61.htl-leonding.ac.at:1883');
