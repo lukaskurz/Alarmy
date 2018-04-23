@@ -1,25 +1,25 @@
-import * as mqtt from "mqtt";
-
 import * as fs from "fs";
-import {DatabaseClient, DatabaseClientConfiguration} from "./databaseclient";
+import { DatabaseClient, DatabaseClientConfiguration } from "./databaseclient";
+import { MqttClient, MqttClientConfiguration } from "./mqttclient";
 
 export class Logger {
-	public MqttClient: mqtt.MqttClient;
+	public MqttClient: MqttClient;
 	public DatabaseClient: DatabaseClient;
 	public constructor(private config: LoggerConfiguration = new LoggerConfiguration()) {
-		this.MqttClient = mqtt.connect(`mqtt://${config.MqttUrl}:443`);
-		this.MqttClient.subscribe("#");
-		this.MqttClient.on("message", (topic, message) => {
-			console.log(`${topic.toString()}: ${message.toString()}`);
-		});
-
 		this.DatabaseClient = new DatabaseClient(config.Database);
+		this.MqttClient = new MqttClient(config.Mqtt);
+		this.DatabaseClient.Connect().then(() => {
+			this.MqttClient.Messages.subscribe(value => {
+				console.log(value);
+				this.DatabaseClient.Insert(value.Type, value.Timestamp, value.Topic, value.Content);
+			}, error => {
+				console.log(error);
+			});
+		});
 	}
 }
 
 export class LoggerConfiguration {
-	MqttUrl = "localhost";
-	MqttAccessPort = 1883;
-	MqttHttpPort = 8080;
+	Mqtt = new MqttClientConfiguration();
 	Database = new DatabaseClientConfiguration();
 }
