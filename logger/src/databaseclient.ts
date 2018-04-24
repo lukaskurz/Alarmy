@@ -34,11 +34,12 @@ export class DatabaseClient {
 		//Converts the timestamp to format used by the TIMESTAMP() function
 		let iso = timestamp.toISOString();
 		let date = iso.substring(0,10);
-		let time = iso.substr(11,iso.length - 12)
+		let time = iso.substr(11,iso.length - 12);
+		let datetime = `${date} ${time}`;
 
 		//Insert statement
-		const statement: string = `INSERT INTO messages(topic, timestampt, type, content)
-		VALUES ('${mysql.escape(topic)}',TIMESTAMP('${mysql.escape(date)} ${mysql.escape(time)}'), ${mysql.escape(type)}, '${mysql.escape(content)}');`
+		const statement: string = `INSERT INTO messages(topic, senddate, type, content)
+		VALUES (${mysql.escape(topic)},TIMESTAMP(${mysql.escape(datetime)}), ${mysql.escape(type)}, ${mysql.escape(content)});`
 
 		//Creates a promise for the insert statement
 		return new Promise((resolve, reject) => {
