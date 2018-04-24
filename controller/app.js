@@ -26,13 +26,22 @@ client.on('message',(topic, message) => {
     if(topic.toString().match('P2\/Alarmy\/[A-z0-9]+\/[A-z0-9]+\/Sensor\/.+')){
         handleSensorMessage(topic,message);
     }
-    else if(topic.toString() === 'P2/Alarmy/Client/SensorStatus'){
+    else if(topic.toString().match('P2\/Alarmy\/Client\/.+')){
         handleClientMessage(topic,message);
     }
 })
 
 function handleClientMessage(topic,message){
-    
+    if(topic.toString().toLocaleLowerCase() === 'P2/Alarmy/Client/SensorStatus'.toLocaleLowerCase()){
+        var jsObj=JSON.parse('{ "type":300, "timestamp": "'+new Date().toDateString() + ' ' +new Date().toTimeString() +
+                    '", "content": []}');
+        console.log(jsObj);
+        sensorList.forEach(function(element){
+            jsObj.content.push(JSON.stringify(element));
+        });
+        console.log(jsObj);
+        client.publish('P2/Alarmy/Client/SensorStatusResponse',JSON.stringify(jsObj));
+    }
 }
 
 
@@ -42,10 +51,21 @@ function handleSensorMessage(topic,message){
     if(MSGObj.content === 'activation'){
         var topArr = topic.split('/');
         var sensor = new Sensor(topArr[2],topArr[3],true,topArr[5]);
-        sensorList.push(sensor);
+        if(!isSensorActivated(sensor)){
+            sensorList.push(sensor);
+        }
+
     }
 }
 
+function isSensorActivated(sensor){
+    sensorList.forEach(function(element){
+        if(sensor.room == element.room && sensor.position == element.position && sensor.type == element.type){
+            return true;
+        }
+    })
+    return false;
+}
 
 //TESTALARM
 function alarmAlert(){
