@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { subscribe } from 'mqtt-react';
 
-class App extends Component {
+class App extends React.Component {
   render() {
     return (
       <div className="App">
@@ -10,12 +11,38 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+        <body>
+          <h1>Alarmy</h1>
+          <Mqtt />
+        </body>
       </div>
     );
   }
 }
 
-export default App;
+export default App
+
+class Mqtt extends React.Component {
+  render() {
+     const mqtt = require('mqtt')
+    const client = mqtt.connect('mqtt://192.168.99.100:1883')
+
+    var connected = false
+    var data = ""
+
+    client.on('connect', () => {
+      client.subscribe('P2/Alarmy/Client/#')
+      client.publish('P2/Alarmy/Controller/SensorStatus', '{}')
+    })
+
+
+    client.on('message', (topic, message) => {
+      if(topic === 'P2/Alarmy/Client/SensorStatus') {
+        connected = (message.toString() === 'true')
+        data = message.toString()
+      }
+    })
+
+      return <p>{data}</p>
+  }
+}
