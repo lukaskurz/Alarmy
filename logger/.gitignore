@@ -1,5 +1,6 @@
 
 # Created by https://www.gitignore.io/api/node,typings
+out
 
 ### Node ###
 # Logs

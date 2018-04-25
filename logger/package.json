@@ -6,19 +6,24 @@
   "types": "lib/index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run build:live",
-    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./src/index.ts"
+    "start": "node ./out/index.js",
+    "build:nodemon": "nodemon --exec ./node_modules/.bin/ts-node -- ./src/index.ts",
+    "build:tsc":"tsc --watch",
+    "build":"tsc"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/mysql": "^2.15.4",
     "@types/node": "^9.6.5",
+    "@types/es6-shim": "^0.31.36",
+    "@types/promise": "^7.1.30",
     "nodemon": "^1.17.3",
     "ts-node": "^6.0.0",
     "typescript": "^2.8.1"
   },
   "dependencies": {
+    "es6-shim": "^0.35.3",
     "mqtt": "^2.17.0",
     "mysql": "^2.15.0",
     "promise": "^8.0.1",
