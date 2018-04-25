@@ -24,17 +24,22 @@ export default App
 
 class Mqtt extends React.Component {
   render() {
-     const mqtt = require('mqtt')
-    const client = mqtt.connect('mqtt://192.168.99.100:1883')
+    const mqtt = require('mqtt')
+
+    const client = mqtt.connect('mqtt://172.18.251.90:1883')
 
     var connected = false
     var data = ""
 
+    console.log("Mqtt")
+
     client.on('connect', () => {
+      console.log("Connected")
       client.subscribe('P2/Alarmy/Client/#')
       client.publish('P2/Alarmy/Controller/SensorStatus', '{}')
     })
 
+    console.log(connected)
 
     client.on('message', (topic, message) => {
       if(topic === 'P2/Alarmy/Client/SensorStatus') {
@@ -43,6 +48,8 @@ class Mqtt extends React.Component {
       }
     })
 
-      return <p>{data}</p>
+    return (
+      <p>{data}</p>
+    )
   }
 }
