@@ -1,0 +1,1 @@
+docker run --net=bridge -t mqtt-logger:latest

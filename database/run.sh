@@ -4,5 +4,5 @@ docker run \
 	-e MYSQL_USER=nodelogger \
 	-e MYSQL_PASSWORD=nodelogger.password \
 	-p 3306:3306 \
-	-d \
+	-t \
 	mysql:5.5
