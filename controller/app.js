@@ -20,51 +20,53 @@ client.on('connect',function(){
     console.log('Connected');
     client.subscribe('P2/Alarmy/+/+/Sensor/#');
     client.subscribe('P2/Alarmy/Client/#');
+    client.subscribe('P2/Alarmy/Controller/#');
 })
 
 client.on('message',(topic, message) => {
     if(topic.toString().match('P2\/Alarmy\/[A-z0-9]+\/[A-z0-9]+\/Sensor\/.+')){
         handleSensorMessage(topic,message);
     }
-    else if(topic.toString().match('P2\/Alarmy\/Client\/.+')){
+    else if(topic.toString().match('P2\/Alarmy\/Controller\/.+')){
         handleClientMessage(topic,message);
     }
 })
 
 function handleClientMessage(topic,message){
-    if(topic.toString().toLocaleLowerCase() === 'P2/Alarmy/Client/SensorStatus'.toLocaleLowerCase()){
+    console.log(topic.toString().toLocaleLowerCase());
+    if(topic.toString().toLocaleLowerCase() === 'P2/Alarmy/Controller/SensorStatus'.toLocaleLowerCase()){
         var jsObj=JSON.parse('{ "type":300, "timestamp": "'+new Date().toDateString() + ' ' +new Date().toTimeString() +
                     '", "content": []}');
-        console.log(jsObj);
+
         sensorList.forEach(function(element){
             jsObj.content.push(JSON.stringify(element));
+            console.log(element);
         });
         console.log(jsObj);
-        client.publish('P2/Alarmy/Client/SensorStatusResponse',JSON.stringify(jsObj));
+        client.publish('P2/Alarmy/Client/SensorStatus',JSON.stringify(jsObj));
     }
 }
 
 
 function handleSensorMessage(topic,message){
     var MSGObj = JSON.parse(message);
-    console.log(MSGObj.content);
     if(MSGObj.content === 'activation'){
         var topArr = topic.split('/');
         var sensor = new Sensor(topArr[2],topArr[3],true,topArr[5]);
         if(!isSensorActivated(sensor)){
             sensorList.push(sensor);
         }
-
     }
 }
 
 function isSensorActivated(sensor){
+    var found = false;
     sensorList.forEach(function(element){
-        if(sensor.room == element.room && sensor.position == element.position && sensor.type == element.type){
-            return true;
+        if(sensor.room === element.room && sensor.position === element.position && sensor.type === element.type){
+            found = true;
         }
-    })
-    return false;
+    });
+    return found;
 }
 
 //TESTALARM
