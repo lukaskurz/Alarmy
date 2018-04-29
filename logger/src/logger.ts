@@ -46,9 +46,11 @@ export class Logger {
 
 			console.log("Started capturing mqtt messages");
 			return Promise.resolve();
-		}).catch((reason)=>{
+		}).done(null,(reason)=>{
+			this.MqttClient.Disconnect();
+			this.DatabaseClient.Disconnect();
 			console.log(reason);
-			// return Promise.reject(reason);
+			process.exit()
 		});
 	}
 }

@@ -162,6 +162,14 @@ export class DatabaseClient {
 			});
 		});
 	}
+
+	/**
+	 * Disconnects from the database
+	 */
+	public Disconnect(){
+		this.Client.end();
+		this.Client.destroy();
+	}
 }
 
 export class DatabaseClientConfiguration {

@@ -32,7 +32,10 @@ export class MqttClient {
 
 	public Connect() {
 		return new Promise((resolve, reject) => {
-			const problemTimer = setTimeout(()=>reject("Couldn't establish connection after 30s"),30*1000);
+			const problemTimer = setTimeout(()=>{
+				this.Client.end();
+				reject("Couldn't establish connection after 30s");
+			},30*1000);
 			this.Client.on("connect", () => {
 				if (this.Client.connected) {
 					// Unsubscribes to prevent double subscriptions in case of reconnect
@@ -48,6 +51,10 @@ export class MqttClient {
 			});
 			this.Client.reconnect();
 		});
+	}
+
+	public Disconnect(){
+		this.Client.end();
 	}
 }
 
