@@ -7,6 +7,7 @@ RUN npm install &&\
 FROM node:carbon
 WORKDIR /usr/src/alarmy/logger
 COPY --from=builder /tmp/alarmy/logger/out ./out/
-COPY --from=builder /tmp/alarmy/logger/package*.json ./
+COPY ./package*.json ./
+COPY ./config.json ./
 RUN npm install --only=production
 CMD npm start
