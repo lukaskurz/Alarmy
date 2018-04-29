@@ -30,6 +30,9 @@ export class MqttClient {
 		}
 	}
 
+	/**
+	 * Connects to the mqtt-broker
+	 */
 	public Connect() {
 		return new Promise((resolve, reject) => {
 			const problemTimer = setTimeout(()=>{
