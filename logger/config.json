@@ -1,0 +1,14 @@
+{
+	"Mqtt": {
+		"Url": "localhost",
+		"AccessPort": 1883,
+		"HttpPort": 8080
+	},
+	"Database": {
+		"Url": "localhost",
+		"Port": 3306,
+		"DatabaseName": "alarmy",
+		"Username": "nodelogger",
+		"Password": "nodelogger.password"
+	}
+}

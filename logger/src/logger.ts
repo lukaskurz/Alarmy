@@ -1,6 +1,6 @@
 import * as fs from "fs";
-import { DatabaseClient, DatabaseClientConfiguration } from "./databaseclient";
-import { MqttClient, MqttClientConfiguration } from "./mqttclient";
+import {DatabaseClient, DatabaseClientConfiguration} from "./databaseclient";
+import {MqttClient, MqttClientConfiguration} from "./mqttclient";
 
 /**
  * Logs all the information sent over a mqtt-broker and writes it to a mysql database
@@ -15,32 +15,42 @@ export class Logger {
 	 * @param config Configuration containing url, ports and passwords needed
 	 */
 	public constructor(private config: LoggerConfiguration = new LoggerConfiguration()) {
-		console.log("Initiating database client...")
+		console.log("Initiating database client...");
 		this.DatabaseClient = new DatabaseClient(config.Database);
-		console.log("Initiating mqtt client...")
+		console.log("Initiating mqtt client...");
 		this.MqttClient = new MqttClient(config.Mqtt);
 
 		//Connects to database
-		this.DatabaseClient.Connect().then(() => {
-			console.log("Finished connecting to database");
-
+		console.log("Connecting to database");
+		this.DatabaseClient.Connect().then(()=>{
+			console.log("Connected to database");
+			console.log("Connecting to mqtt-broker")
+			return this.MqttClient.Connect();
+		}).then(()=>{
+			console.log("Connected to mqtt-broker")
+			console.log("Subscribing to mqtt-broker")
 			//After connecting, subscribe the db writing process to the mqtt-broker
-			this.MqttClient.Messages.subscribe(value => {
-				//Write the logged value to the db
-				this.DatabaseClient.Insert(value.Type, value.Timestamp, value.Topic, value.Content).catch(err =>{
-					//Log error receiveded when trying to write to db
-					console.error(err);
-				});
-			}, error => {
-				//Log error received when listening to mqtt-broker
-				console.error(error);
-			});
+			this.MqttClient.Messages.subscribe(
+				value => {
+					//Write the logged value to the db
+					this.DatabaseClient.Insert(value.Type, value.Timestamp, value.Topic, value.Content).catch(err => {
+						//Log error receiveded when trying to write to db
+						console.error(err);
+					});
+				},
+				error => {
+					//Log error received when listening to mqtt-broker
+					console.error(error);
+				}
+			);
 
 			console.log("Started capturing mqtt messages");
+			return Promise.resolve();
+		}).catch((reason)=>{
+			console.log(reason);
+			// return Promise.reject(reason);
 		});
 	}
-
-
 }
 
 export class LoggerConfiguration {
