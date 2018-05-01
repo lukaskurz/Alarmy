@@ -7,26 +7,36 @@ const GLOBALPROXY = {
 };
 
 class MessageJson {
-	constructor(messageType, content){
-		this.MessageType = messageType;
-		this.Content = content;
+	constructor(messagetype, content){
+		this.messagetype = messagetype;
+		this.content = content;
+		this.secret = localStorage.getItem("alarmy-secret");
 	}
-	MessageType = "";
-	Content = "";
+	messagetype = "";
+	content = "";
+	secret = "";
 }
 
 class App extends Component {
 	connection = new WebSocket(`ws://${GLOBALPROXY.URL}:${GLOBALPROXY.WEBSOCKETPORT}`);
 	constructor() {
 		super();
-		let message = new MessageJson("login",localStorage.getItem("alarmy-secret"));
-		console.log(JSON.stringify(new MessageJson("login","superkurzespasswort")));
-		if(message.Content == null){
-			alert("You have not registered with your alarmy controller yet");
+		if(localStorage.getItem("alarmy-secret")){
+			this.connection.onmessage = this.handleMessage;
 		} else {
-			this.connection.onopen = () => {
-				this.connection.send();
-			};
+			this.noSecretFound();
+		}
+	}
+
+	noSecretFound(){
+
+	}
+
+	handleMessage(data){
+		let message = JSON.parse(data);
+		switch(message.messagetype){
+			case "stuff":
+			default:
 		}
 	}
 
