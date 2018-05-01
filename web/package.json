@@ -1,0 +1,19 @@
+{
+  "name": "alarmy-web",
+  "version": "1.0.0",
+  "description": "Website and/or app of alarmy",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lukaskurz/alarmy.git"
+  },
+  "author": "Lukas Kurz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lukaskurz/alarmy/issues"
+  },
+  "homepage": "https://github.com/lukaskurz/alarmy#readme"
+}
