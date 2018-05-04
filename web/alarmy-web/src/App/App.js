@@ -47,7 +47,7 @@ const bottomNav = {
 export default class App extends Component {
 	connection = new WebSocket(`ws://${GLOBALPROXY.URL}:${GLOBALPROXY.WEBSOCKETPORT}`);
 	state = {
-		selectedIndex: 0,
+		selectedIndex: 1,
 	};
 	constructor() {
 		super();

@@ -1,13 +1,23 @@
 import React, {Component} from "react";
+import AppBar from "material-ui/AppBar";
 
 export default class HomeComponent extends Component{
-	constructor(props){
-		super(props);
-	}
+	styles = {
+		AppBar: {
+			IconLeft: {
+				display: "none",
+			}
+		}
+	};
 
 	render(){
 		return (
-			<p>Hi im the home component</p>
+			<div>
+				<AppBar
+					iconStyleLeft={this.styles.AppBar.IconLeft}
+					title={<span>Home</span>}
+				/>
+			</div>
 		);
 	}
 }

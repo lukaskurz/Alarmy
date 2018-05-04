@@ -1,13 +1,23 @@
 import React, {Component} from "react";
+import AppBar from "material-ui/AppBar";
 
 export default class HistoryComponent extends Component{
-	constructor(props){
-		super(props);
-	}
+	styles = {
+		AppBar: {
+			IconLeft: {
+				display: "none",
+			}
+		}
+	};
 
 	render(){
 		return (
-			<p>History time</p>
+			<div>
+				<AppBar
+					iconStyleLeft={this.styles.AppBar.IconLeft}
+					title={<span>History</span>}
+				/>
+			</div>
 		);
 	}
 }
