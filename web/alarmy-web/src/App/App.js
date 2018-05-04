@@ -34,20 +34,23 @@ class MessageJson {
 	secret = "";
 }
 
-const iconStyles = {
-	marginRight: 24,
-};
-
-const bottomNav = {
-	position: "fixed",
-	bottom: 0,
-	width: "100vw",
-};
-
 export default class App extends Component {
 	connection = new WebSocket(`ws://${GLOBALPROXY.URL}:${GLOBALPROXY.WEBSOCKETPORT}`);
+
 	state = {
 		selectedIndex: 1,
+		registred: true
+	};
+
+	styles = {
+		bottomNav:{
+			position: "fixed",
+			bottom: 0,
+			width: "100vw",
+		},
+		iconStyles:{
+			marginRight: 24,
+		}
 	};
 	constructor() {
 		super();
@@ -55,13 +58,11 @@ export default class App extends Component {
 		if (localStorage.getItem("alarmy-secret")) {
 			this.connection.onmessage = this.handleMessage;
 		} else {
-			this.noSecretFound();
+			this.state.registred=false;
 		}
 	}
 
 	select = index => this.setState({selectedIndex: index});
-
-	noSecretFound() {}
 
 	handleMessage(data) {
 		let message = JSON.parse(data);
@@ -77,11 +78,11 @@ export default class App extends Component {
 				{this.state.selectedIndex == 0 ? (
 					<HistoryComponent/>
 				): this.state.selectedIndex == 1 ? (
-					<HomeComponent/>
+					<HomeComponent registred={this.state.registred}/>
 				): this.state.selectedIndex == 2 ? (
 					<SettingsComponent/>
 				):<p>Error</p>}
-				<Paper zDepth={1} style={bottomNav}>
+				<Paper zDepth={1} style={this.styles.bottomNav}>
 					<BottomNavigation className="bottomNav" selectedIndex={this.state.selectedIndex}>
 						<BottomNavigationItem icon={<ActionHistory />} onClick={() => this.select(0)} />
 						<BottomNavigationItem icon={<ActionHome />} onClick={() => this.select(1)} />
