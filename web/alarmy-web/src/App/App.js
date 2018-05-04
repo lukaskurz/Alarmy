@@ -1,21 +1,20 @@
-import React, { Component } from "react";
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import FontIcon from 'material-ui/FontIcon';
-import { BottomNavigation, BottomNavigationItem } from 'material-ui/BottomNavigation';
-import Paper from 'material-ui/Paper';
-import ActionHistory from 'material-ui/svg-icons/action/history';
+import React, {Component} from "react";
+import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
+import FontIcon from "material-ui/FontIcon";
+import {BottomNavigation, BottomNavigationItem} from "material-ui/BottomNavigation";
+import Paper from "material-ui/Paper";
+import ActionHistory from "material-ui/svg-icons/action/history";
 import ActionHome from "material-ui/svg-icons/action/home";
 import ActionSettings from "material-ui/svg-icons/action/settings";
-import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import RaisedButton from 'material-ui/RaisedButton';
-import Card, { CardContent, CardMedia } from 'material-ui/Card';
-import IconButton from 'material-ui/IconButton';
-import Typography from 'material-ui/Typography';
-import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import SkipNextIcon from '@material-ui/icons/SkipNext';
+import PropTypes from "prop-types";
+import {withStyles} from "material-ui/styles";
+import RaisedButton from "material-ui/RaisedButton";
+import FloatingActionButton from 'material-ui/FloatingActionButton';
+import ContentAdd from 'material-ui/svg-icons/content/add';
 
+import SettingsComponent from "./../Settings/Settings";
+import HomeComponent from "./../Home/Home";
+import HistoryComponent from "./../History/History";
 
 import "./App.css";
 
@@ -42,36 +41,8 @@ const iconStyles = {
 const bottomNav = {
 	position: "fixed",
 	bottom: 0,
-	width: "100vw"
+	width: "100vw",
 };
-
-const alarmCard = theme => ({
-	card: {
-	  display: 'flex',
-	},
-	details: {
-	  display: 'flex',
-	  flexDirection: 'column',
-	},
-	content: {
-	  flex: '1 0 auto',
-	},
-	cover: {
-	  width: 151,
-	  height: 151,
-	},
-	controls: {
-	  display: 'flex',
-	  alignItems: 'center',
-	  paddingLeft: theme.spacing.unit,
-	  paddingBottom: theme.spacing.unit,
-	},
-	playIcon: {
-	  height: 38,
-	  width: 38,
-	},
-  });
-
 
 export default class App extends Component {
 	connection = new WebSocket(`ws://${GLOBALPROXY.URL}:${GLOBALPROXY.WEBSOCKETPORT}`);
@@ -80,6 +51,7 @@ export default class App extends Component {
 	};
 	constructor() {
 		super();
+
 		if (localStorage.getItem("alarmy-secret")) {
 			this.connection.onmessage = this.handleMessage;
 		} else {
@@ -87,11 +59,9 @@ export default class App extends Component {
 		}
 	}
 
-	select = (index) => this.setState({ selectedIndex: index });
+	select = index => this.setState({selectedIndex: index});
 
-	noSecretFound() {
-
-	}
+	noSecretFound() {}
 
 	handleMessage(data) {
 		let message = JSON.parse(data);
@@ -104,22 +74,21 @@ export default class App extends Component {
 	render() {
 		return (
 			<MuiThemeProvider>
+				{this.state.selectedIndex == 0 ? (
+					<HistoryComponent/>
+				): this.state.selectedIndex == 1 ? (
+					<HomeComponent/>
+				): this.state.selectedIndex == 2 ? (
+					<SettingsComponent/>
+				):<p>Error</p>}
 				<Paper zDepth={1} style={bottomNav}>
 					<BottomNavigation className="bottomNav" selectedIndex={this.state.selectedIndex}>
-						<BottomNavigationItem
-							icon={<ActionHistory/>}
-							onClick={() => this.select(0)}
-						/>
-						<BottomNavigationItem
-							icon={<ActionHome/>}
-							onClick={() => this.select(1)}
-						/>
-						<BottomNavigationItem
-							icon={<ActionSettings/>}
-							onClick={() => this.select(2)}
-						/>
+						<BottomNavigationItem icon={<ActionHistory />} onClick={() => this.select(0)} />
+						<BottomNavigationItem icon={<ActionHome />} onClick={() => this.select(1)} />
+						<BottomNavigationItem icon={<ActionSettings />} onClick={() => this.select(2)} />
 					</BottomNavigation>
 				</Paper>
-			</MuiThemeProvider>);
+			</MuiThemeProvider>
+		);
 	}
 }
