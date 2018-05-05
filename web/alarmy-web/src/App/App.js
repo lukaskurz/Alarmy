@@ -67,7 +67,7 @@ export default class App extends Component {
 				{this.state.selectedIndex == 0 ? (
 					<HistoryComponent/>
 				): this.state.selectedIndex == 1 ? (
-					<HomeComponent registred={this.state.registred}/>
+					<HomeComponent/>
 				): this.state.selectedIndex == 2 ? (
 					<SettingsComponent/>
 				):<p>Error</p>}
