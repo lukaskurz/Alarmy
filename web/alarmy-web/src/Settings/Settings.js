@@ -7,6 +7,7 @@ import Divider from "material-ui/Divider";
 import Dialog from "material-ui/Dialog";
 import TextField from "material-ui/TextField";
 
+import MessageJson from "./../MessageJson";
 import "./Settings.css";
 
 export default class SettingsComponent extends Component {
@@ -31,7 +32,14 @@ export default class SettingsComponent extends Component {
 	};
 
 	register() {
-		alert(this.state.systemAddress);
+		const ws = new WebSocket(this.state.systemAddress);
+		ws.send(new MessageJson("request-secret", ""));
+		ws.onmessage(value => {
+			const msg = JSON.parse(value);
+			if (msg.messagetype == "answer-secret" && msg.content) {
+				localStorage.setItem("alarmy-secret", msg.content);
+			}
+		});
 	}
 
 	render() {

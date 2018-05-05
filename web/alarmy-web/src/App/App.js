@@ -23,17 +23,6 @@ const GLOBALPROXY = {
 	WEBSOCKETPORT: "8888",
 };
 
-class MessageJson {
-	constructor(messagetype, content) {
-		this.messagetype = messagetype;
-		this.content = content;
-		this.secret = localStorage.getItem("alarmy-secret");
-	}
-	messagetype = "";
-	content = "";
-	secret = "";
-}
-
 export default class App extends Component {
 	connection = new WebSocket(`ws://${GLOBALPROXY.URL}:${GLOBALPROXY.WEBSOCKETPORT}`);
 
