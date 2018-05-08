@@ -24,6 +24,7 @@ client.on('connect',function(){
 })
 
 client.on('message',(topic, message) => {
+    console.log(topic + message);
     if(topic.toString().match('P2\/Alarmy\/[A-z0-9]+\/[A-z0-9]+\/Sensor\/.+')){
         handleSensorMessage(topic,message);
     }
@@ -42,7 +43,6 @@ function handleClientMessage(topic,message){
             jsObj.content.push(JSON.stringify(element));
             console.log(element);
         });
-        console.log(jsObj);
         client.publish('P2/Alarmy/Client/SensorStatus',JSON.stringify(jsObj));
     }
 }
@@ -50,12 +50,20 @@ function handleClientMessage(topic,message){
 
 function handleSensorMessage(topic,message){
     var MSGObj = JSON.parse(message);
+    var topArr = topic.split('/');
+    var sensor = new Sensor(topArr[2],topArr[3],true,topArr[5]);
     if(MSGObj.content === 'activation'){
-        var topArr = topic.split('/');
-        var sensor = new Sensor(topArr[2],topArr[3],true,topArr[5]);
         if(!isSensorActivated(sensor)){
             sensorList.push(sensor);
         }
+    }
+    else if(MSGOBJ.content === 'alert'){
+       if(isSensorActivated(sensor)){
+           var jsObj=JSON.parse('{ "type":300, "timestamp": "'+new Date().toDateString() + ' ' +new Date().toTimeString() +
+           '", "content": Alert by }'+sensor.romm+'/'+sensor.position+'/'+sensor.type)
+           console.log(jsObj);
+           client.publish('P2/Alarmy/+/+/Actor/#',JSON.stringify(jsObj));
+       }
     }
 }
 
