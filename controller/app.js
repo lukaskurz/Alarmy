@@ -4,6 +4,7 @@ const hostname = '127.0.0.1';
 const port = 1883;
 
 var mqtt = require('mqtt');
+var webSocketServer = require('websocket').server;
 var Sensor = require('./classes/sensor.js');
 var client = mqtt.connect('mqtt://192.168.99.100:1883');
 
@@ -14,6 +15,11 @@ var sensorList = [];
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain');
+});
+
+wsServer = new WebSocketServer({
+    httpServer: server,
+    autoAcceptConnections: false
 });
 
 client.on('connect',function(){
