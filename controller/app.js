@@ -4,6 +4,7 @@ const hostname = '127.0.0.1';
 const port = 1883;
 
 var mqtt = require('mqtt');
+var webSocketServer = require('websocket').server;
 var Sensor = require('./classes/sensor.js');
 var client = mqtt.connect('mqtt://192.168.99.100:1883');
 
@@ -16,6 +17,11 @@ const server = http.createServer((req, res) => {
   res.setHeader('Content-Type', 'text/plain');
 });
 
+wsServer = new WebSocketServer({
+    httpServer: server,
+    autoAcceptConnections: false
+});
+
 client.on('connect',function(){
     console.log('Connected');
     client.subscribe('P2/Alarmy/+/+/Sensor/#');
@@ -24,6 +30,7 @@ client.on('connect',function(){
 })
 
 client.on('message',(topic, message) => {
+    console.log(topic + message);
     if(topic.toString().match('P2\/Alarmy\/[A-z0-9]+\/[A-z0-9]+\/Sensor\/.+')){
         handleSensorMessage(topic,message);
     }
@@ -42,7 +49,6 @@ function handleClientMessage(topic,message){
             jsObj.content.push(JSON.stringify(element));
             console.log(element);
         });
-        console.log(jsObj);
         client.publish('P2/Alarmy/Client/SensorStatus',JSON.stringify(jsObj));
     }
 }
@@ -50,12 +56,20 @@ function handleClientMessage(topic,message){
 
 function handleSensorMessage(topic,message){
     var MSGObj = JSON.parse(message);
+    var topArr = topic.split('/');
+    var sensor = new Sensor(topArr[2],topArr[3],true,topArr[5]);
     if(MSGObj.content === 'activation'){
-        var topArr = topic.split('/');
-        var sensor = new Sensor(topArr[2],topArr[3],true,topArr[5]);
         if(!isSensorActivated(sensor)){
             sensorList.push(sensor);
         }
+    }
+    else if(MSGOBJ.content === 'alert'){
+       if(isSensorActivated(sensor)){
+           var jsObj=JSON.parse('{ "type":300, "timestamp": "'+new Date().toDateString() + ' ' +new Date().toTimeString() +
+           '", "content": Alert by }'+sensor.romm+'/'+sensor.position+'/'+sensor.type)
+           console.log(jsObj);
+           client.publish('P2/Alarmy/+/+/Actor/#',JSON.stringify(jsObj));
+       }
     }
 }
 
