@@ -4,9 +4,9 @@ const hostname = '127.0.0.1';
 const port = 1883;
 
 var mqtt = require('mqtt');
-var webSocketServer = require('websocket').server;
+//var webSocketServer = require('websocket').server;
 var Sensor = require('./classes/sensor.js');
-var client = mqtt.connect('mqtt://192.168.99.100:1883');
+var client = mqtt.connect('mqtt://172.18.251.90:1883');
 
 var sensorList = [];
 
@@ -16,32 +16,34 @@ const server = http.createServer((req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain');
 });
-
+/*
 wsServer = new WebSocketServer({
     httpServer: server,
     autoAcceptConnections: false
 });
+*/
+
 
 client.on('connect',function(){
     console.log('Connected');
-    client.subscribe('P2/Alarmy/+/+/Sensor/#');
-    client.subscribe('P2/Alarmy/Client/#');
-    client.subscribe('P2/Alarmy/Controller/#');
+    client.subscribe('p2/alarmy/+/+/sensor/#');
+    client.subscribe('p2/alarmy/client/#');
+    client.subscribe('p2/alarmy/controller/#');
 })
 
 client.on('message',(topic, message) => {
     console.log(topic + message);
-    if(topic.toString().match('P2\/Alarmy\/[A-z0-9]+\/[A-z0-9]+\/Sensor\/.+')){
+    if(topic.toString().match('p2\/alarmy\/[A-z0-9]+\/[A-z0-9]+\/sensor\/.+')){
         handleSensorMessage(topic,message);
     }
-    else if(topic.toString().match('P2\/Alarmy\/Controller\/.+')){
+    else if(topic.toString().match('p2\/alarmy\/controller\/.+')){
         handleClientMessage(topic,message);
     }
 })
 
 function handleClientMessage(topic,message){
     console.log(topic.toString().toLocaleLowerCase());
-    if(topic.toString().toLocaleLowerCase() === 'P2/Alarmy/Controller/SensorStatus'.toLocaleLowerCase()){
+    if(topic.toString().toLocaleLowerCase() === 'p2/alarmy/controller/sensorstatus'.toLocaleLowerCase()){
         var jsObj=JSON.parse('{ "type":300, "timestamp": "'+new Date().toDateString() + ' ' +new Date().toTimeString() +
                     '", "content": []}');
 
@@ -49,7 +51,7 @@ function handleClientMessage(topic,message){
             jsObj.content.push(JSON.stringify(element));
             console.log(element);
         });
-        client.publish('P2/Alarmy/Client/SensorStatus',JSON.stringify(jsObj));
+        client.publish('p2/alarmy/client/sensorstatus',JSON.stringify(jsObj));
     }
 }
 
@@ -63,12 +65,12 @@ function handleSensorMessage(topic,message){
             sensorList.push(sensor);
         }
     }
-    else if(MSGOBJ.content === 'alert'){
+    else if(MSGObj.content === 'alert'){
        if(isSensorActivated(sensor)){
-           var jsObj=JSON.parse('{ "type":300, "timestamp": "'+new Date().toDateString() + ' ' +new Date().toTimeString() +
-           '", "content": Alert by }'+sensor.romm+'/'+sensor.position+'/'+sensor.type)
+           var jsObj=JSON.parse('{ "type":100, "timestamp": "'+new Date().toDateString() + ' ' +new Date().toTimeString() +
+           '", "content": "Alert by '+sensor.room+'/'+sensor.position+'/'+sensor.type+ '"}')
            console.log(jsObj);
-           client.publish('P2/Alarmy/+/+/Actor/#',JSON.stringify(jsObj));
+           client.publish('p2/alarmy/',JSON.stringify(jsObj));
        }
     }
 }
@@ -86,7 +88,7 @@ function isSensorActivated(sensor){
 //TESTALARM
 function alarmAlert(){
     
-    client.publish('P2/Alarmy/255/Door/Actor/33',JSON.stringify({
+    client.publish('p2/alarmy/255/door/actor/33',JSON.stringify({
         value: 'Alarm from Sensor',
         time: new Date().toTimeString()
     }));

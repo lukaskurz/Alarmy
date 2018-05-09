@@ -1,0 +1,45 @@
+--- Simulator Topic ---
+
+-- 1 --
+-- Registration der Sensoren --
+## a)
+Topic: 
+p2/alarmy/255/door/sensor/lightsensor
+message:
+{
+"type":300,
+"content":"activation"
+}
+
+## b)
+Topic: 
+p2/alarmy/255/door/sensor/pushsensor
+message:
+{
+"type":300,
+"content":"activation"
+}
+
+-- 2 --
+-- Sensor Status --
+Topic:
+p2/alarmy/controller/sensorstatus
+Content: 
+empty
+
+-- 3 --
+-- Alarm --
+Topic:
+p2/alarmy/255/sensor/pushsensor
+Message:
+{
+"type":"300,
+"content":"alert"
+}
+#### AWAITED RESPONSE ON TOPIC p2/alarmy/
+MESSAGE: 
+{
+"type":100,
+"timestamp": "date blabla"
+"content":"Alert by 255/sensor/pushsensor"
+}
