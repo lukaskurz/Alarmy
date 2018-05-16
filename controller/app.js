@@ -4,32 +4,46 @@ const hostname = '127.0.0.1';
 const port = 1883;
 
 var mqtt = require('mqtt');
-//var webSocketServer = require('websocket').server;
+var webSocketClient = require('websocket').client;
 var Sensor = require('./classes/sensor.js');
 var client = mqtt.connect('mqtt://172.18.251.90:1883');
 
 var sensorList = [];
 
-//
+var websocketClient = new webSocketClient();
 
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain');
 });
-/*
-wsServer = new WebSocketServer({
-    httpServer: server,
-    autoAcceptConnections: false
-});
-*/
 
+websocketClient.on('connectFailed',function(error){
+    console.log('Connection error: ' + error.toString());
+});
+
+websocketClient.on('connect',function(connection){
+    console.log('Websocket Client Connected');
+    connection.on('error',function(error){
+        console.log('Connection error '+connection.toString());
+    });
+
+    connection.on('close',function(){
+        console.log('Websocket Connection closed');
+    });
+
+    connection.on('message',function(message){
+        
+    });
+});
+
+websocketClient.connect('ws://localhost:8080/','echo-protocol');
 
 client.on('connect',function(){
     console.log('Connected');
     client.subscribe('p2/alarmy/+/+/sensor/#');
     client.subscribe('p2/alarmy/client/#');
     client.subscribe('p2/alarmy/controller/#');
-})
+});
 
 client.on('message',(topic, message) => {
     console.log(topic + message);
@@ -39,7 +53,7 @@ client.on('message',(topic, message) => {
     else if(topic.toString().match('p2\/alarmy\/controller\/.+')){
         handleClientMessage(topic,message);
     }
-})
+});
 
 function handleClientMessage(topic,message){
     console.log(topic.toString().toLocaleLowerCase());
