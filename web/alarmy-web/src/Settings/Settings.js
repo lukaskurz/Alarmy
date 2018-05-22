@@ -6,6 +6,7 @@ import FlatButton from "material-ui/FlatButton";
 import Divider from "material-ui/Divider";
 import Dialog from "material-ui/Dialog";
 import TextField from "material-ui/TextField";
+import axios from "axios";
 
 import MessageJson from "./../MessageJson";
 import "./Settings.css";
@@ -24,22 +25,26 @@ export default class SettingsComponent extends Component {
 				textIndent: "20px",
 			},
 		},
+		Dialog: {
+			minHeight: "200px",
+		}
 	};
 
 	state = {
 		registerOpen: false,
-		systemAddress: "172.168.100.99",
+		systemAddress: "127.0.0.1",
 	};
 
 	register() {
-		const ws = new WebSocket(this.state.systemAddress);
-		ws.send(new MessageJson("request-secret", ""));
-		ws.onmessage(value => {
-			const msg = JSON.parse(value);
-			if (msg.messagetype == "answer-secret" && msg.content) {
-				localStorage.setItem("alarmy-secret", msg.content);
-			}
-		});
+		axios.get(`http://${this.state.systemAddress}:3000`).then(value => {
+			console.log(value.data);
+			const msg = value.data
+			localStorage.setItem("alarmy-secret", msg.secret);
+		})
+		.catch(error => {
+			alert("error with reg");
+			console.log(error);
+		})
 	}
 
 	render() {
@@ -79,6 +84,8 @@ export default class SettingsComponent extends Component {
 					modal={false}
 					open={this.state.registerOpen}
 					onRequestClose={()=>this.handleRegisterClose()}
+					autoScrollBodyContent={true}
+					bodyStyle={this.styles.Dialog}
 				>
 					<p>You have to be in the same network as your Alarmy system.</p>
 					<TextField

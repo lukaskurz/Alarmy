@@ -26,6 +26,8 @@ const server = http
 	.createServer((req, res) => {
 		res.statusCode = 200;
 		res.setHeader("Content-Type", "text/plain");
+		res.setHeader("Access-Control-Allow-Origin","*")
+		res.setHeader("Access-Control-Allow-Headers","X-Requested-With")
 	})
 	.listen(3000);
 
