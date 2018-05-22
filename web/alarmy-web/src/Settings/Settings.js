@@ -27,40 +27,30 @@ export default class SettingsComponent extends Component {
 		},
 		Dialog: {
 			minHeight: "200px",
-		}
+		},
 	};
 
 	state = {
 		registerOpen: false,
+		resetOpen: false,
 		systemAddress: "127.0.0.1",
 	};
 
 	register() {
-		axios.get(`http://${this.state.systemAddress}:3000`).then(value => {
-			console.log(value.data);
-			const msg = value.data
-			localStorage.setItem("alarmy-secret", msg.secret);
-		})
-		.catch(error => {
-			alert("error with reg");
-			console.log(error);
-		})
+		axios
+			.get(`http://${this.state.systemAddress}:3000`)
+			.then(value => {
+				console.log(value.data);
+				const msg = value.data;
+				localStorage.setItem("alarmy-secret", msg.secret);
+			})
+			.catch(error => {
+				alert("Could not connect to system");
+				console.log(error);
+			});
 	}
 
 	render() {
-		const registerActions = [
-			<FlatButton label="Cancel" primary={true} onClick={() => this.handleRegisterClose()} />,
-			<FlatButton
-				label="Register"
-				primary={true}
-				keyboardFocused={true}
-				onClick={() => {
-					this.handleRegisterClose();
-					this.register();
-				}}
-			/>,
-		];
-
 		return (
 			<div>
 				<AppBar
@@ -77,25 +67,86 @@ export default class SettingsComponent extends Component {
 						Register to new system
 					</FlatButton>
 					<Divider />
+					<FlatButton fullWidth={true} style={this.styles.Button.Register} onClick={() => this.setState({resetOpen: true})}>
+						Reset connection to system
+					</FlatButton>
+					<Divider />
 				</div>
-				<Dialog
-					title="Registering with new system"
-					actions={registerActions}
-					modal={false}
-					open={this.state.registerOpen}
-					onRequestClose={()=>this.handleRegisterClose()}
-					autoScrollBodyContent={true}
-					bodyStyle={this.styles.Dialog}
-				>
-					<p>You have to be in the same network as your Alarmy system.</p>
-					<TextField
-						hintText="172.168.100.99"
-						floatingLabelText="Address of your system"
-						floatingLabelFixed={false}
-						onChange={this.handleRegisterChange}
-					/>
-				</Dialog>
+				{this.registerDialog()}
+				{this.resetDialog()}
 			</div>
+		);
+	}
+
+	resetDialog(){
+		const resetActions = [
+			<FlatButton label="Cancel" primary={true} onClick={() => this.handleResetClose()} />,
+			<FlatButton
+				label="Reset"
+				primary={true}
+				keyboardFocused={true}
+				onClick={() => {
+					this.handleResetClose();
+					this.reset();
+				}}
+			/>,
+		];
+
+		return(
+			<Dialog
+				title="Resetting current connection"
+				actions={resetActions}
+				modal={false}
+				open={this.state.resetOpen}
+				onRequestClose={() => this.handleResetClose()}
+				autoScrollBodyContent={true}
+				bodyStyle={this.styles.Dialog}
+			>
+				<p>Once you have resetted your connection, you won't be able to connect to it again, until you have registered to a new system.</p>
+			</Dialog>
+		);
+	}
+
+	handleResetClose() {
+		this.setState({resetOpen: false});
+	}
+
+	reset(){
+		localStorage.removeItem("alarmy-secret");
+	}
+
+	registerDialog() {
+		const registerActions = [
+			<FlatButton label="Cancel" primary={true} onClick={() => this.handleRegisterClose()} />,
+			<FlatButton
+				label="Register"
+				primary={true}
+				keyboardFocused={true}
+				onClick={() => {
+					this.handleRegisterClose();
+					this.register();
+				}}
+			/>,
+		];
+
+		return (
+			<Dialog
+				title="Registering with new system"
+				actions={registerActions}
+				modal={false}
+				open={this.state.registerOpen}
+				onRequestClose={() => this.handleRegisterClose()}
+				autoScrollBodyContent={true}
+				bodyStyle={this.styles.Dialog}
+			>
+				<p>You have to be in the same network as your Alarmy system.</p>
+				<TextField
+					hintText={this.state.systemAddress}
+					floatingLabelText="Address of your system"
+					floatingLabelFixed={false}
+					onChange={this.handleRegisterChange}
+				/>
+			</Dialog>
 		);
 	}
 

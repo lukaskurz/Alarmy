@@ -4,6 +4,7 @@ import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from "mat
 import FlatButton from "material-ui/FlatButton";
 import ActionLockOpen from "material-ui/svg-icons/action/lock-open";
 import ActionLockOutline from "material-ui/svg-icons/action/lock-outline";
+import AvNotInterested from "material-ui/svg-icons/av/not-interested";
 
 export default class HomeComponent extends Component {
 	constructor(props) {
@@ -24,13 +25,27 @@ export default class HomeComponent extends Component {
 		Card: {
 			margin: "10px",
 		},
+		NotRegistered: {
+			Div: {
+				width: "300px",
+				height: "400px",
+				margin: "auto"
+			},
+			Icon:{
+				width: "150px",
+				height: "150px",
+				margin: "75px",
+				marginTop: "30px",
+				marginBottom: "30px"
+			}
+		},
 	};
 
 	render() {
 		return (
 			<div>
 				<AppBar iconStyleLeft={this.styles.AppBar.IconLeft} title={<span>Home</span>} />
-				{this.state.registered == true ? this.renderRegistered() : <p>Not Registered</p>}
+				{this.state.registered == true ? this.renderRegistered() : this.renderNotRegistered()}
 			</div>
 		);
 	}
@@ -53,7 +68,15 @@ export default class HomeComponent extends Component {
 		);
 	}
 
-	renderSensors(){
-		
+	renderNotRegistered() {
+		return (
+			<div style={this.styles.NotRegistered.Div}>
+				<AvNotInterested style={this.styles.NotRegistered.Icon} />
+				<p>You are currently not registered to any alarmy system.</p>
+				<p>Go to the settings section and register to a new system.</p>
+			</div>
+		);
 	}
+
+	renderSensors() {}
 }
