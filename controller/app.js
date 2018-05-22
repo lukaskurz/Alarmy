@@ -67,10 +67,18 @@ websocketClient.on("connect", function(connection) {
 	});
 
 	connection.on("message", function(message) {
-		switch(message.requestType){
+		console.log("ws received:"+message.utf8Data);
+		message = JSON.parse(message.utf8Data);
+		switch(message.messagetype){
 			case "sensorStatus":
-				console.log(message);
 				connection.send(JSON.stringify(getSensorsAsJSON()));
+				break;
+			case "systemEnabled":
+				if(message.content === true){
+					console.log("Alarm is now actived");
+				} else {
+					console.log("Alarm is now deactivated");
+				}
 		}
 	});
 });

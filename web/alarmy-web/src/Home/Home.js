@@ -16,7 +16,7 @@ export default class HomeComponent extends Component {
 		Card: {
 			margin: "10px",
 		},
-		LockButton:{
+		LockButton: {
 			color: "white",
 		},
 		NotRegistered: {
@@ -59,9 +59,21 @@ export default class HomeComponent extends Component {
 				)}
 				<CardActions>
 					{this.props.systemEnabled ? (
-						<FlatButton label="Disable" backgroundColor="#ff4081" hoverColor="#ff8db4" style={this.styles.LockButton} onClick={() => this.props.onSystemEnabledChange(false)} />
+						<FlatButton
+							label="Disable"
+							backgroundColor="#ff4081"
+							hoverColor="#ff8db4"
+							style={this.styles.LockButton}
+							onClick={() => this.props.onSystemEnabledChange(false)}
+						/>
 					) : (
-						<FlatButton label="Enable" backgroundColor="#a4c639" hoverColor="#8AA62F" style={this.styles.LockButton} onClick={() => this.props.onSystemEnabledChange(true)} />
+						<FlatButton
+							label="Enable"
+							backgroundColor="#a4c639"
+							hoverColor="#8AA62F"
+							style={this.styles.LockButton}
+							onClick={() => this.props.onSystemEnabledChange(true)}
+						/>
 					)}
 				</CardActions>
 			</Card>
