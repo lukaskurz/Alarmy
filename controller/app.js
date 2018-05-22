@@ -27,15 +27,22 @@ if (fs.existsSync(secretFilename)) {
 	fs.writeFileSync(secretFilename, secret);
 }
 
-const alarmStatusFile = "alarmstatus.txt"
+const alarmStatusFile = "alarmstatus.txt";
+const alarmHistoryFile = "alarmhistory.json";
 var alarmStatus = false;
-var alarmTriggered = false;
-var alarmHistory = [];
 if (fs.existsSync(alarmStatusFile)) {
 	alarmStatus = fs.readFileSync(alarmStatusFile).toString() === "true";
 } else {
 	fs.writeFileSync(alarmStatusFile, alarmStatus);
 }
+var alarmTriggered = false;
+var alarmHistory = [];
+if (fs.existsSync(alarmHistoryFile)) {
+	alarmHistory =  JSON.parse(fs.readFileSync(alarmHistoryFile).toString());
+} else {
+	fs.writeFileSync(alarmHistoryFile, alarmHistory);
+}
+
 
 var websocketClient = new webSocketClient();
 
@@ -82,6 +89,13 @@ websocketClient.on("connect", function(connection) {
 		console.log("ws received:"+message.utf8Data);
 		message = JSON.parse(message.utf8Data);
 		switch(message.messagetype){
+			case 401:
+				var jsObj = {
+					type: 400,
+					content: alarmHistory
+				};
+				connection.send(JSON.stringify(jsObj));
+				break;
 			case 300:	//Request for all the sensors
 				connection.send(JSON.stringify(getSensors()));
 				break;
@@ -154,6 +168,9 @@ function getSensors(){
 }
 
 function setAlarmStatus(active){
+	if(active === false){
+		alarmTriggered = false;
+	}
 	alarmStatus = active;
 	fs.writeFileSync(alarmStatusFile, alarmStatus);
 }
@@ -181,7 +198,7 @@ function handleSensorMessage(topic, message) {
 			client.publish("p2/alarmy/", JSON.stringify(jsObj));
 
 			// Global alarm is triggered
-			if(alarmStatus === true){
+			if(alarmStatus === true && alarmTriggered === false){
 				var jsObj = {
 					type: 200,
 					timestamp: new Date(),
@@ -190,6 +207,7 @@ function handleSensorMessage(topic, message) {
 				websocketConnection.send(JSON.stringify(jsObj));
 				alarmTriggered = true;
 				alarmHistory.push(jsObj);
+				fs.writeFileSync(alarmHistoryFile,JSON.stringify(alarmHistory));
 			}
 		}
 	}

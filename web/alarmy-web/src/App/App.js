@@ -10,6 +10,7 @@ import SettingsComponent from "./../Settings/Settings";
 import HomeComponent from "./../Home/Home";
 import HistoryComponent from "./../History/History";
 import MessageJson from "./../MessageJson";
+import AlarmComponent from "./../Alarm/Alarm";
 
 import "./App.css";
 
@@ -24,7 +25,9 @@ export default class App extends Component {
 		registered: false,
 		systemEnabled: localStorage.getItem("alarmy-status") === "true", // cache the status
 		systemAddress: "127.0.0.1",
-		sensors: []
+		sensors: [],
+		alarmHistory: [],
+		alarmTriggered: false
 	};
 
 	websocket;
@@ -47,10 +50,20 @@ export default class App extends Component {
 		this.onSystemAddressChange = this.onSystemAddressChange.bind(this);
 		this.onSystemEnabledChange = this.onSystemEnabledChange.bind(this);
 		this.handleWebsocketMessage = this.handleWebsocketMessage.bind(this);
+		this.onAlarmTriggeredChange = this.onAlarmTriggeredChange.bind(this);
 
 		if (localStorage.getItem("alarmy-secret")) {
 			this.state.registered = true;
 			this.connectWebsocket();
+		}
+	}
+
+	onAlarmTriggeredChange(acknowledged){
+		if(acknowledged === true){
+			this.setState({alarmTriggered: false});
+			this.onSystemEnabledChange(false); //Turn off system
+		} else {
+			this.setState({alarmTriggered: false});
 		}
 	}
 
@@ -77,8 +90,9 @@ export default class App extends Component {
 
 		this.websocket.onopen = event => {
 			console.log(`connected to the global proxy: ${event}`);
-			this.sendWebsocketMessage(new MessageJson(300,""));
-			this.sendWebsocketMessage(new MessageJson(101,""));
+			this.sendWebsocketMessage(new MessageJson(300,"")); 	// Get Sensors
+			this.sendWebsocketMessage(new MessageJson(101,""));	// Get alarmstatus
+			this.sendWebsocketMessage(new MessageJson(401,""));	// Get history
 		};
 		this.websocket.onerror = event => {
 			console.log(`error with the global proxy: ${event}`);
@@ -95,15 +109,24 @@ export default class App extends Component {
 
 		const msg = JSON.parse(data.data);
 		switch(msg.type){
+			case 400:
+				this.setState({alarmHistory: msg.content});
+				console.log(msg.content.data);
+				break;
 			case 300:
 				this.setState({sensors: msg.content})
-				console.log(this.state.sensors);
 				break;
 			case 200:
-				alert("all hell breakes lose")
+				this.setState({alarmTriggered: true});
 				break;
 			case 100:	//Sets alarm active/inactive
-				this.setState({systemEnabled: msg.content})
+				//Turn off alarm
+				if(msg.content === false){
+					this.setState({systemEnabled: msg.content, alarmTriggered: false})
+				} else {
+					this.setState({systemEnabled: msg.content})
+				}
+				localStorage.setItem("alarmy-status",msg.content);
 				break;
 		}
 	}
@@ -121,7 +144,7 @@ export default class App extends Component {
 			<MuiThemeProvider>
 				<div>
 					{this.state.selectedIndex === 0 ? (
-						<HistoryComponent />
+						<HistoryComponent history={this.state.alarmHistory}/>
 					) : this.state.selectedIndex === 1 ? (
 						<HomeComponent
 							registered={this.state.registered}
@@ -146,6 +169,7 @@ export default class App extends Component {
 						</BottomNavigation>
 					</Paper>
 				</div>
+				{this.state.alarmTriggered === true?<AlarmComponent onAlarmTriggeredChange={this.onAlarmTriggeredChange}/>:""}
 			</MuiThemeProvider>
 		);
 	}

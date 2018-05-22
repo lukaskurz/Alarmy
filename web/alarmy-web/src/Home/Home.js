@@ -79,7 +79,7 @@ export default class HomeComponent extends Component {
 						)}
 					</CardActions>
 				</Card>
-				<SensorListComponent sensors={this.props.sensors} />
+				{this.props.sensors.length > 0 ? <SensorListComponent sensors={this.props.sensors} />:""}
 			</div>
 		);
 	}
