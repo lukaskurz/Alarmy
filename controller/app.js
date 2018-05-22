@@ -1,35 +1,41 @@
 const http = require("http");
 
 const hostname = "127.0.0.1";
+var randExp = require("randexp");
 const port = 1883;
 
 var mqtt = require("mqtt");
 var webSocketClient = require("websocket").client;
 var Sensor = require("./classes/sensor.js");
-<<<<<<< HEAD
-var client = mqtt.connect("mqtt://172.18.251.90:1883");
-var randExp = require("randexp");
-=======
 var client = mqtt.connect("mqtt://127.0.0.1:1883");
->>>>>>> origin/master
 
 var sensorList = [];
 
-var secret = new randExp("[a-zA-Z0-9]{32}^");
+var secret = new randExp("[a-zA-Z0-9]{32}^").gen();
 
 var websocketClient = new webSocketClient();
 
 const server = http.createServer((req, res) => {
 	res.statusCode = 200;
 	res.setHeader("Content-Type", "text/plain");
+}).listen(3000);
+
+server.on("request", (req, res)=>{
+	if(req.method == "GET"){
+		var msg = {
+			secret: secret
+		};
+		res.write(JSON.stringify(msg));
+		res.end();
+	}
 });
 
 websocketClient.on("connectFailed", function(error) {
-	console.log("Connection error: " + error.toString());
+	console.log("Websocket connection error: " + error.toString());
 });
 
 websocketClient.on("connect", function(connection) {
-	console.log("Websocket Client Connected");
+	console.log("Websocket client Connected");
 	connection.on("error", function(error) {
 		console.log("Connection error " + connection.toString());
 	});
@@ -44,7 +50,7 @@ websocketClient.on("connect", function(connection) {
 websocketClient.connect("ws://globproxy.htl.harwoeck.at:8082/controller/"+ secret, "echo-protocol");
 
 client.on("connect", function() {
-	console.log("Connected");
+	console.log("Mqtt connected");
 	client.subscribe("p2/alarmy/+/+/sensor/#");
 	client.subscribe("p2/alarmy/client/#");
 	client.subscribe("p2/alarmy/controller/#");
@@ -104,7 +110,3 @@ function isSensorActivated(sensor) {
 	});
 	return found;
 }
-
-server.listen(port, hostname, () => {
-	console.log(`Server running at http://${hostname}:${port}/`);
-});
