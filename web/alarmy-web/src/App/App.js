@@ -97,6 +97,7 @@ export default class App extends Component {
 		switch(msg.type){
 			case 300:
 				this.setState({sensors: msg.content})
+				console.log(this.state.sensors);
 				break;
 			case 200:
 				alert("all hell breakes lose")
@@ -126,6 +127,7 @@ export default class App extends Component {
 							registered={this.state.registered}
 							systemEnabled={this.state.systemEnabled}
 							onSystemEnabledChange={this.onSystemEnabledChange}
+							sensors={this.state.sensors}
 						/>
 					) : this.state.selectedIndex === 2 ? (
 						<SettingsComponent

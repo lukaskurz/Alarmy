@@ -5,6 +5,7 @@ import FlatButton from "material-ui/FlatButton";
 import ActionLockOpen from "material-ui/svg-icons/action/lock-open";
 import ActionLockOutline from "material-ui/svg-icons/action/lock-outline";
 import AvNotInterested from "material-ui/svg-icons/av/not-interested";
+import SensorListComponent from "./SensorList";
 
 export default class HomeComponent extends Component {
 	styles = {
@@ -46,37 +47,40 @@ export default class HomeComponent extends Component {
 
 	renderRegistered() {
 		return (
-			<Card style={this.styles.Card}>
-				<CardHeader
-					title="System status"
-					subtitle={this.props.systemEnabled ? "Enabled" : "Disabled"}
-					avatar={this.props.systemEnabled ? <ActionLockOutline /> : <ActionLockOpen />}
-				/>
-				{this.props.systemEnabled ? (
-					<CardText>Your system is currently active and will trigger an alarm if any secured entrances are opened</CardText>
-				) : (
-					<CardText>Your system is currently not active and you are free to open and close any secured entrances</CardText>
-				)}
-				<CardActions>
+			<div>
+				<Card style={this.styles.Card}>
+					<CardHeader
+						title="System status"
+						subtitle={this.props.systemEnabled ? "Enabled" : "Disabled"}
+						avatar={this.props.systemEnabled ? <ActionLockOutline /> : <ActionLockOpen />}
+					/>
 					{this.props.systemEnabled ? (
-						<FlatButton
-							label="Disable"
-							backgroundColor="#ff4081"
-							hoverColor="#ff8db4"
-							style={this.styles.LockButton}
-							onClick={() => this.props.onSystemEnabledChange(false)}
-						/>
+						<CardText>Your system is currently active and will trigger an alarm if any secured entrances are opened</CardText>
 					) : (
-						<FlatButton
-							label="Enable"
-							backgroundColor="#a4c639"
-							hoverColor="#8AA62F"
-							style={this.styles.LockButton}
-							onClick={() => this.props.onSystemEnabledChange(true)}
-						/>
+						<CardText>Your system is currently not active and you are free to open and close any secured entrances</CardText>
 					)}
-				</CardActions>
-			</Card>
+					<CardActions>
+						{this.props.systemEnabled ? (
+							<FlatButton
+								label="Disable"
+								backgroundColor="#ff4081"
+								hoverColor="#ff8db4"
+								style={this.styles.LockButton}
+								onClick={() => this.props.onSystemEnabledChange(false)}
+							/>
+						) : (
+							<FlatButton
+								label="Enable"
+								backgroundColor="#a4c639"
+								hoverColor="#8AA62F"
+								style={this.styles.LockButton}
+								onClick={() => this.props.onSystemEnabledChange(true)}
+							/>
+						)}
+					</CardActions>
+				</Card>
+				<SensorListComponent sensors={this.props.sensors} />
+			</div>
 		);
 	}
 
@@ -89,6 +93,4 @@ export default class HomeComponent extends Component {
 			</div>
 		);
 	}
-
-	renderSensors() {}
 }
