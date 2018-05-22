@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "mqtt": "^2.18.0",
+    "randexp": "^0.4.9",
+    "websocket": "^1.0.26"
+  }
+}
