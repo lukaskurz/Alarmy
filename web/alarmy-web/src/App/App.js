@@ -1,16 +1,10 @@
 import React, {Component} from "react";
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
-import FontIcon from "material-ui/FontIcon";
 import {BottomNavigation, BottomNavigationItem} from "material-ui/BottomNavigation";
 import Paper from "material-ui/Paper";
 import ActionHistory from "material-ui/svg-icons/action/history";
 import ActionHome from "material-ui/svg-icons/action/home";
 import ActionSettings from "material-ui/svg-icons/action/settings";
-import PropTypes from "prop-types";
-import {withStyles} from "material-ui/styles";
-import RaisedButton from "material-ui/RaisedButton";
-import FloatingActionButton from 'material-ui/FloatingActionButton';
-import ContentAdd from 'material-ui/svg-icons/content/add';
 
 import SettingsComponent from "./../Settings/Settings";
 import HomeComponent from "./../Home/Home";
@@ -19,16 +13,16 @@ import HistoryComponent from "./../History/History";
 import "./App.css";
 
 const GLOBALPROXY = {
-	URL: "localhost",
-	WEBSOCKETPORT: "8888",
+	URL: "globproxy.htl.harwoeck.at",
+	WEBSOCKETPORT: "8082",
 };
 
 export default class App extends Component {
-	connection = new WebSocket(`ws://${GLOBALPROXY.URL}:${GLOBALPROXY.WEBSOCKETPORT}`);
-
 	state = {
 		selectedIndex: 1,
-		registred: true
+		registered: false,
+		systemEnabled: false,
+		systemAddress: "127.0.0.1",
 	};
 
 	styles = {
@@ -41,35 +35,47 @@ export default class App extends Component {
 			marginRight: 24,
 		}
 	};
+
 	constructor() {
 		super();
-
 		if (localStorage.getItem("alarmy-secret")) {
-			this.connection.onmessage = this.handleMessage;
-		} else {
-			this.state.registred=false;
+			this.state.registered = true;
 		}
+
+		this.onRegisterChange = this.onRegisterChange.bind(this);
+		this.onSystemAddressChange = this.onSystemAddressChange.bind(this);
+		this.onSystemEnabledChange = this.onSystemEnabledChange.bind(this);
+	}
+
+	onSystemAddressChange(address){
+		this.setState({systemAddress: address});
+	}
+
+	onRegisterChange(registered){
+		this.setState({registered: registered});
+	}
+
+	onSystemEnabledChange(locked){
+		this.setState({systemEnabled: locked});
 	}
 
 	select = index => this.setState({selectedIndex: index});
 
-	handleMessage(data) {
-		let message = JSON.parse(data);
-		switch (message.messagetype) {
-			case "stuff":
-			default:
-		}
-	}
-
 	render() {
 		return (
 			<MuiThemeProvider>
-				{this.state.selectedIndex == 0 ? (
+				{this.state.selectedIndex === 0 ? (
 					<HistoryComponent/>
-				): this.state.selectedIndex == 1 ? (
-					<HomeComponent/>
-				): this.state.selectedIndex == 2 ? (
-					<SettingsComponent/>
+				): this.state.selectedIndex === 1 ? (
+					<HomeComponent
+					registered={this.state.registered}
+					systemEnabled={this.state.systemEnabled}
+					onSystemEnabledChange={this.onSystemEnabledChange}/>
+				): this.state.selectedIndex === 2 ? (
+					<SettingsComponent 
+					systemAddress={this.state.systemAddress} 
+					onSystemAddressChange={this.onSystemAddressChange}
+					onRegisterChange={this.onRegisterChange}/>
 				):<p>Error</p>}
 				<Paper zDepth={1} style={this.styles.bottomNav}>
 					<BottomNavigation className="bottomNav" selectedIndex={this.state.selectedIndex}>

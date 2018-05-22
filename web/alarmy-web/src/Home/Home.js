@@ -1,21 +1,12 @@
 import React, {Component} from "react";
 import AppBar from "material-ui/AppBar";
-import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from "material-ui/Card";
+import {Card, CardActions, CardHeader, CardText} from "material-ui/Card";
 import FlatButton from "material-ui/FlatButton";
 import ActionLockOpen from "material-ui/svg-icons/action/lock-open";
 import ActionLockOutline from "material-ui/svg-icons/action/lock-outline";
 import AvNotInterested from "material-ui/svg-icons/av/not-interested";
 
 export default class HomeComponent extends Component {
-	constructor(props) {
-		super(props);
-	}
-
-	state = {
-		registered: localStorage.getItem("alarmy-secret") ? true : false,
-		systemEnabled: false,
-	};
-
 	styles = {
 		AppBar: {
 			IconLeft: {
@@ -25,19 +16,22 @@ export default class HomeComponent extends Component {
 		Card: {
 			margin: "10px",
 		},
+		LockButton:{
+			color: "white",
+		},
 		NotRegistered: {
 			Div: {
 				width: "300px",
 				height: "400px",
-				margin: "auto"
+				margin: "auto",
 			},
-			Icon:{
+			Icon: {
 				width: "150px",
 				height: "150px",
 				margin: "75px",
 				marginTop: "30px",
-				marginBottom: "30px"
-			}
+				marginBottom: "30px",
+			},
 		},
 	};
 
@@ -45,7 +39,7 @@ export default class HomeComponent extends Component {
 		return (
 			<div>
 				<AppBar iconStyleLeft={this.styles.AppBar.IconLeft} title={<span>Home</span>} />
-				{this.state.registered == true ? this.renderRegistered() : this.renderNotRegistered()}
+				{this.props.registered === true ? this.renderRegistered() : this.renderNotRegistered()}
 			</div>
 		);
 	}
@@ -55,15 +49,21 @@ export default class HomeComponent extends Component {
 			<Card style={this.styles.Card}>
 				<CardHeader
 					title="System status"
-					subtitle={this.state.systemEnabled ? "Enabled" : "Disabled"}
-					avatar={this.state.systemEnabled ? <ActionLockOutline /> : <ActionLockOpen />}
+					subtitle={this.props.systemEnabled ? "Enabled" : "Disabled"}
+					avatar={this.props.systemEnabled ? <ActionLockOutline /> : <ActionLockOpen />}
 				/>
-				{this.state.registered ? (
-					<CardText>Your system is currently not active and you are free to open and close any secured entrances</CardText>
-				) : (
+				{this.props.systemEnabled ? (
 					<CardText>Your system is currently active and will trigger an alarm if any secured entrances are opened</CardText>
+				) : (
+					<CardText>Your system is currently not active and you are free to open and close any secured entrances</CardText>
 				)}
-				<CardActions>{this.state.systemEnabled ? <FlatButton label="Disable" /> : <FlatButton label="Enable" />}</CardActions>
+				<CardActions>
+					{this.props.systemEnabled ? (
+						<FlatButton label="Disable" backgroundColor="#ff4081" hoverColor="#ff8db4" style={this.styles.LockButton} onClick={() => this.props.onSystemEnabledChange(false)} />
+					) : (
+						<FlatButton label="Enable" backgroundColor="#a4c639" hoverColor="#8AA62F" style={this.styles.LockButton} onClick={() => this.props.onSystemEnabledChange(true)} />
+					)}
+				</CardActions>
 			</Card>
 		);
 	}

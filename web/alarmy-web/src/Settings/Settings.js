@@ -1,14 +1,11 @@
 import React, {Component} from "react";
 import AppBar from "material-ui/AppBar";
-import IconButton from "material-ui/IconButton";
-import NavigationMoreVert from "material-ui/svg-icons/navigation/more-vert";
 import FlatButton from "material-ui/FlatButton";
 import Divider from "material-ui/Divider";
 import Dialog from "material-ui/Dialog";
 import TextField from "material-ui/TextField";
 import axios from "axios";
 
-import MessageJson from "./../MessageJson";
 import "./Settings.css";
 
 export default class SettingsComponent extends Component {
@@ -32,17 +29,16 @@ export default class SettingsComponent extends Component {
 
 	state = {
 		registerOpen: false,
-		resetOpen: false,
-		systemAddress: "127.0.0.1",
+		resetOpen: false
 	};
 
 	register() {
 		axios
-			.get(`http://${this.state.systemAddress}:3000`)
+			.get(`http://${this.props.systemAddress}:3000`)
 			.then(value => {
-				console.log(value.data);
 				const msg = value.data;
 				localStorage.setItem("alarmy-secret", msg.secret);
+				this.props.onRegisterChange(true);
 			})
 			.catch(error => {
 				alert("Could not connect to system");
@@ -108,6 +104,7 @@ export default class SettingsComponent extends Component {
 
 	reset(){
 		localStorage.removeItem("alarmy-secret");
+		this.props.onRegisterChange(false);
 	}
 
 	registerDialog() {
@@ -136,7 +133,7 @@ export default class SettingsComponent extends Component {
 			>
 				<p>You have to be in the same network as your Alarmy system.</p>
 				<TextField
-					hintText={this.state.systemAddress}
+					hintText={this.props.systemAddress}
 					floatingLabelText="Address of your system"
 					floatingLabelFixed={false}
 					onChange={this.handleRegisterChange}
@@ -146,9 +143,7 @@ export default class SettingsComponent extends Component {
 	}
 
 	handleRegisterChange = event => {
-		this.setState({
-			systemAddress: event.target.value,
-		});
+		this.props.onSystemAddressChange(event.target.value);
 	};
 
 	handleRegisterClose() {

@@ -39,6 +39,7 @@ const server = http
 	})
 	.listen(3000);
 
+//Http endpoint for the local secret swap with the app
 server.on("request", (req, res) => {
 	if (req.method == "GET") {
 		var msg = {
