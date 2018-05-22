@@ -3,6 +3,7 @@ const http = require("http");
 const hostname = "127.0.0.1";
 var randExp = require("randexp");
 const port = 1883;
+const fs = require("fs");
 
 var mqtt = require("mqtt");
 var webSocketClient = require("websocket").client;
@@ -11,19 +12,27 @@ var client = mqtt.connect("mqtt://127.0.0.1:1883");
 
 var sensorList = [];
 
+const secretFilename = "secret.txt";
 var secret = new randExp("[a-zA-Z0-9]{32}^").gen();
+if (fs.existsSync(secretFilename)) {
+	secret = fs.readFileSync(secretFilename).toString();
+} else {
+	fs.writeFileSync(secretFilename, secret);
+}
 
 var websocketClient = new webSocketClient();
 
-const server = http.createServer((req, res) => {
-	res.statusCode = 200;
-	res.setHeader("Content-Type", "text/plain");
-}).listen(3000);
+const server = http
+	.createServer((req, res) => {
+		res.statusCode = 200;
+		res.setHeader("Content-Type", "text/plain");
+	})
+	.listen(3000);
 
-server.on("request", (req, res)=>{
-	if(req.method == "GET"){
+server.on("request", (req, res) => {
+	if (req.method == "GET") {
 		var msg = {
-			secret: secret
+			secret: secret,
 		};
 		res.write(JSON.stringify(msg));
 		res.end();
@@ -47,7 +56,7 @@ websocketClient.on("connect", function(connection) {
 	connection.on("message", function(message) {});
 });
 
-websocketClient.connect("ws://globproxy.htl.harwoeck.at:8082/controller/"+ secret, "echo-protocol");
+websocketClient.connect("ws://globproxy.htl.harwoeck.at:8082/controller/" + secret, "echo-protocol");
 
 client.on("connect", function() {
 	console.log("Mqtt connected");
@@ -93,8 +102,8 @@ function handleSensorMessage(topic, message) {
 			var jsObj = {
 				type: 100,
 				timestamp: new Date(),
-				content: `${sensor.room}/${sensor.position}/${sensor.type}`
-			}
+				content: `${sensor.room}/${sensor.position}/${sensor.type}`,
+			};
 			console.log(jsObj);
 			client.publish("p2/alarmy/", JSON.stringify(jsObj));
 		}
