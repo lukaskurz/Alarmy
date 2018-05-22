@@ -6,7 +6,7 @@ const port = 1883;
 var mqtt = require("mqtt");
 var webSocketClient = require("websocket").client;
 var Sensor = require("./classes/sensor.js");
-var client = mqtt.connect("mqtt://172.18.251.90:1883");
+var client = mqtt.connect("mqtt://127.0.0.1:1883");
 
 var sensorList = [];
 
@@ -44,7 +44,7 @@ client.on("connect", function() {
 });
 
 client.on("message", (topic, message) => {
-	console.log(topic + message);
+	console.log(`${topic}: ${message}`);
 	if (topic.toString().match("p2/alarmy/[A-z0-9]+/[A-z0-9]+/sensor/.+")) {
 		handleSensorMessage(topic, message);
 	} else if (topic.toString().match("p2/alarmy/controller/.+")) {
@@ -77,19 +77,11 @@ function handleSensorMessage(topic, message) {
 		}
 	} else if (MSGObj.content === "alert") {
 		if (isSensorActivated(sensor)) {
-			var jsObj = JSON.parse(
-				'{ "type":100, "timestamp": "' +
-					new Date().toDateString() +
-					" " +
-					new Date().toTimeString() +
-					'", "content": "Alert by ' +
-					sensor.room +
-					"/" +
-					sensor.position +
-					"/" +
-					sensor.type +
-					'"}'
-			);
+			var jsObj = {
+				type: 100,
+				timestamp: new Date(),
+				content: `${sensor.room}/${sensor.position}/${sensor.type}`
+			}
 			console.log(jsObj);
 			client.publish("p2/alarmy/", JSON.stringify(jsObj));
 		}
