@@ -29,6 +29,8 @@ if (fs.existsSync(secretFilename)) {
 
 const alarmStatusFile = "alarmstatus.txt"
 var alarmStatus = false;
+var alarmTriggered = false;
+var alarmHistory = [];
 if (fs.existsSync(alarmStatusFile)) {
 	alarmStatus = fs.readFileSync(alarmStatusFile).toString() === "true";
 } else {
@@ -186,6 +188,8 @@ function handleSensorMessage(topic, message) {
 					content: `${sensor.room}/${sensor.position}/${sensor.type}`,
 				};
 				websocketConnection.send(JSON.stringify(jsObj));
+				alarmTriggered = true;
+				alarmHistory.push(jsObj);
 			}
 		}
 	}
