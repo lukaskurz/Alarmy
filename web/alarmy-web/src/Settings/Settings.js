@@ -56,11 +56,6 @@ export default class SettingsComponent extends Component {
 				<AppBar
 					iconStyleLeft={this.styles.AppBar.IconLeft}
 					title={<span>Settings</span>}
-					iconElementRight={
-						<IconButton>
-							<NavigationMoreVert />
-						</IconButton>
-					}
 				/>
 				<div className="content">
 					<FlatButton fullWidth={true} style={this.styles.Button.Register} onClick={() => this.setState({registerOpen: true})}>
