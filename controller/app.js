@@ -7,8 +7,11 @@ var mqtt = require("mqtt");
 var webSocketClient = require("websocket").client;
 var Sensor = require("./classes/sensor.js");
 var client = mqtt.connect("mqtt://172.18.251.90:1883");
+var randExp = require("randexp");
 
 var sensorList = [];
+
+var secret = new randExp("[a-zA-Z0-9]{32}^");
 
 var websocketClient = new webSocketClient();
 
@@ -34,7 +37,7 @@ websocketClient.on("connect", function(connection) {
 	connection.on("message", function(message) {});
 });
 
-websocketClient.connect("ws://localhost:8080/", "echo-protocol");
+websocketClient.connect("ws://globproxy.htl.harwoeck.at:8082/controller/"+ secret, "echo-protocol");
 
 client.on("connect", function() {
 	console.log("Connected");
@@ -104,18 +107,6 @@ function isSensorActivated(sensor) {
 		}
 	});
 	return found;
-}
-
-//TESTALARM
-function alarmAlert() {
-	client.publish(
-		"p2/alarmy/255/door/actor/33",
-		JSON.stringify({
-			value: "Alarm from Sensor",
-			time: new Date().toTimeString(),
-		})
-	);
-	console.log("ALERT");
 }
 
 server.listen(port, hostname, () => {
