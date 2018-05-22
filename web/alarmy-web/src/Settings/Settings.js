@@ -28,7 +28,7 @@ export default class SettingsComponent extends Component {
 
 	state = {
 		registerOpen: false,
-		systemAddress: "127.0.0.1",
+		systemAddress: "172.168.100.99",
 	};
 
 	register() {
@@ -78,7 +78,7 @@ export default class SettingsComponent extends Component {
 					actions={registerActions}
 					modal={false}
 					open={this.state.registerOpen}
-					onRequestClose={this.handleRegisterClose}
+					onRequestClose={()=>this.handleRegisterClose()}
 				>
 					<p>You have to be in the same network as your Alarmy system.</p>
 					<TextField
