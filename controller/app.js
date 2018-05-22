@@ -12,6 +12,7 @@ const fs = require("fs");
 
 var mqtt = require("mqtt");
 var webSocketClient = require("websocket").client;
+var websocketConnection;
 var Sensor = require("./classes/sensor.js");
 var client = mqtt.connect("mqtt://127.0.0.1:1883");
 
@@ -66,6 +67,7 @@ websocketClient.on("connectFailed", function(error) {
 //Websocket message handling for the websocket connection
 websocketClient.on("connect", function(connection) {
 	console.log("Websocket client Connected");
+	websocketConnection = connection;
 	connection.on("error", function(error) {
 		console.log("Connection error " + connection.toString());
 	});
@@ -78,15 +80,10 @@ websocketClient.on("connect", function(connection) {
 		console.log("ws received:"+message.utf8Data);
 		message = JSON.parse(message.utf8Data);
 		switch(message.messagetype){
-			case 300:
+			case 300:	//Request for all the sensors
 				connection.send(JSON.stringify(getSensors()));
 				break;
-			case 100:
-				if(message.content === true){
-					console.log("Alarm is now actived");
-				} else {
-					console.log("Alarm is now deactivated");
-				}
+			case 100:	//Changing alarmstatus
 				var jsObj = {
 					type: 100,
 					content: message.content
@@ -94,7 +91,7 @@ websocketClient.on("connect", function(connection) {
 				connection.send(JSON.stringify(jsObj));
 				setAlarmStatus(message.content);
 				break;
-			case 101:
+			case 101:	// Request for alarmstatus
 				var jsObj = {
 					type: 100,
 					content: alarmStatus
@@ -173,13 +170,23 @@ function handleSensorMessage(topic, message) {
 		}
 	} else if (MSGObj.content === "alert") {
 		if (isSensorActivated(sensor)) {
-			var jsObj = {
-				type: 100,
+			var jsObj = { // A single sensor has been triggered
+				type: 201,
 				timestamp: new Date(),
 				content: `${sensor.room}/${sensor.position}/${sensor.type}`,
 			};
 			console.log(jsObj);
 			client.publish("p2/alarmy/", JSON.stringify(jsObj));
+
+			// Global alarm is triggered
+			if(alarmStatus === true){
+				var jsObj = {
+					type: 200,
+					timestamp: new Date(),
+					content: `${sensor.room}/${sensor.position}/${sensor.type}`,
+				};
+				websocketConnection.send(JSON.stringify(jsObj));
+			}
 		}
 	}
 }

@@ -98,6 +98,9 @@ export default class App extends Component {
 			case 300:
 				this.setState({sensors: msg.content})
 				break;
+			case 200:
+				alert("all hell breakes lose")
+				break;
 			case 100:	//Sets alarm active/inactive
 				this.setState({systemEnabled: msg.content})
 				break;
