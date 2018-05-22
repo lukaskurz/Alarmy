@@ -12,6 +12,7 @@ var client = mqtt.connect("mqtt://127.0.0.1:1883");
 
 var sensorList = [];
 
+//
 const secretFilename = "secret.txt";
 var secret = new randExp("[a-zA-Z0-9]{32}^").gen();
 if (fs.existsSync(secretFilename)) {
@@ -53,10 +54,16 @@ websocketClient.on("connect", function(connection) {
 		console.log("Websocket Connection closed");
 	});
 
-	connection.on("message", function(message) {});
+	connection.on("message", function(message) {
+		switch(message.requestType){
+			case "sensorStatus":
+				console.log(message);
+				connection.send(JSON.stringify(getSensorsAsJSON()));
+		}
+	});
 });
 
-websocketClient.connect("ws://globproxy.htl.harwoeck.at:8082/controller/" + secret, "echo-protocol");
+websocketClient.connect("ws://globproxy.htl.harwoeck.at:8082/controller/" + secret);
 
 client.on("connect", function() {
 	console.log("Mqtt connected");
@@ -77,16 +84,20 @@ client.on("message", (topic, message) => {
 function handleClientMessage(topic, message) {
 	console.log(topic.toString().toLocaleLowerCase());
 	if (topic.toString().toLocaleLowerCase() === "p2/alarmy/controller/sensorstatus".toLocaleLowerCase()) {
-		var jsObj = JSON.parse(
-			'{ "type":300, "timestamp": "' + new Date().toDateString() + " " + new Date().toTimeString() + '", "content": []}'
-		);
-
-		sensorList.forEach(function(element) {
-			jsObj.content.push(JSON.stringify(element));
-			console.log(element);
-		});
-		client.publish("p2/alarmy/client/sensorstatus", JSON.stringify(jsObj));
+		client.publish("p2/alarmy/client/sensorstatus", JSON.stringify(getSensorsAsJSON()));
 	}
+}
+
+function getSensorsAsJSON(){
+	var jsObj = JSON.parse(
+		'{ "type":300, "timestamp": "' + new Date().toDateString() + " " + new Date().toTimeString() + '", "content": []}'
+	);
+
+	sensorList.forEach(function(element) {
+		jsObj.content.push(JSON.stringify(element));
+		console.log(element);
+	});
+	return jsObj;
 }
 
 function handleSensorMessage(topic, message) {
