@@ -9,9 +9,9 @@ tmux new -s globproxy
 stdbuf -o 0 ./globproxy "0.0.0.0:8082" | sudo tee -a globproxy-access.log
 ```
 
-Press `Ctrl + B` and afterwards `Shift + .`
+First, press `Ctrl` and `B` simultaneously and afterwards `Shift` and `.` simultaneously.
 
-Write `detach`
+Write `"detach"` in the command prompt
 
 To attach again do
 
