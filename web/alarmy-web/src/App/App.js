@@ -22,8 +22,9 @@ export default class App extends Component {
 	state = {
 		selectedIndex: 1,
 		registered: false,
-		systemEnabled: false,
+		systemEnabled: localStorage.getItem("alarmy-status") === "true", // cache the status
 		systemAddress: "127.0.0.1",
+		sensors: []
 	};
 
 	websocket;
@@ -66,8 +67,9 @@ export default class App extends Component {
 
 	onSystemEnabledChange(locked) {
 		this.setState({systemEnabled: locked});
-		let msg = new MessageJson("systemEnabled",locked);
+		let msg = new MessageJson(100,locked);
 		this.sendWebsocketMessage(msg);
+		localStorage.setItem("alarmy-status",locked);
 	}
 
 	connectWebsocket() {
@@ -75,6 +77,8 @@ export default class App extends Component {
 
 		this.websocket.onopen = event => {
 			console.log(`connected to the global proxy: ${event}`);
+			this.sendWebsocketMessage(new MessageJson(300,""));
+			this.sendWebsocketMessage(new MessageJson(101,""));
 		};
 		this.websocket.onerror = event => {
 			console.log(`error with the global proxy: ${event}`);
@@ -85,13 +89,25 @@ export default class App extends Component {
 		this.websocket.onmessage = this.handleWebsocketMessage;
 	}
 
-	handleWebsocketMessage(msg) {
-		console.log(`Received global proxy message: ${msg}`)
+	handleWebsocketMessage(data) {
+		console.log(`Received global proxy message:`);
+		console.log(data);
+
+		const msg = JSON.parse(data.data);
+		switch(msg.type){
+			case 300:
+				this.setState({sensors: msg.content})
+				break;
+			case 100:	//Sets alarm active/inactive
+				this.setState({systemEnabled: msg.content})
+				break;
+		}
 	}
 
 	sendWebsocketMessage(obj){
-		this.websocket.send(JSON.stringify(obj));
-		console.log("send"+obj);
+		const msg = JSON.stringify(obj);
+		this.websocket.send(msg);
+		console.log("sent "+msg);
 	}
 
 	select = index => this.setState({selectedIndex: index});

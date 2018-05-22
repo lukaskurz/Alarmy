@@ -26,6 +26,14 @@ if (fs.existsSync(secretFilename)) {
 	fs.writeFileSync(secretFilename, secret);
 }
 
+const alarmStatusFile = "alarmstatus.txt"
+var alarmStatus = false;
+if (fs.existsSync(alarmStatusFile)) {
+	alarmStatus = fs.readFileSync(alarmStatusFile).toString() === "true";
+} else {
+	fs.writeFileSync(alarmStatusFile, alarmStatus);
+}
+
 var websocketClient = new webSocketClient();
 
 
@@ -70,15 +78,29 @@ websocketClient.on("connect", function(connection) {
 		console.log("ws received:"+message.utf8Data);
 		message = JSON.parse(message.utf8Data);
 		switch(message.messagetype){
-			case "sensorStatus":
-				connection.send(JSON.stringify(getSensorsAsJSON()));
+			case 300:
+				connection.send(JSON.stringify(getSensors()));
 				break;
-			case "systemEnabled":
+			case 100:
 				if(message.content === true){
 					console.log("Alarm is now actived");
 				} else {
 					console.log("Alarm is now deactivated");
 				}
+				var jsObj = {
+					type: 100,
+					content: message.content
+				};
+				connection.send(JSON.stringify(jsObj));
+				setAlarmStatus(message.content);
+				break;
+			case 101:
+				var jsObj = {
+					type: 100,
+					content: alarmStatus
+				};
+				connection.send(JSON.stringify(jsObj));
+				break;
 		}
 	});
 });
@@ -113,22 +135,28 @@ client.on("message", (topic, message) => {
 function handleClientMessage(topic, message) {
 	console.log(topic.toString().toLocaleLowerCase());
 	if (topic.toString().toLocaleLowerCase() === "p2/alarmy/controller/sensorstatus".toLocaleLowerCase()) {
-		client.publish("p2/alarmy/client/sensorstatus", JSON.stringify(getSensorsAsJSON()));
+		client.publish("p2/alarmy/client/sensorstatus", JSON.stringify(getSensors()));
 	}
 }
 
-//get the full ist of all sensors and prepare it as a json string with an 
+//get the full list of all sensors and prepare it as a json string with an 
 //array of JSON objcts packed in the content field
-function getSensorsAsJSON(){
-	var jsObj = JSON.parse(
-		'{ "type":300, "timestamp": "' + new Date().toDateString() + " " + new Date().toTimeString() + '", "content": []}'
-	);
+function getSensors(){
+	var jsObj = {
+		type: 300,
+		timestamp: new Date(),
+		content: []
+	};
 
 	sensorList.forEach(function(element) {
-		jsObj.content.push(JSON.stringify(element));
-		console.log(element);
+		jsObj.content.push(element);
 	});
 	return jsObj;
+}
+
+function setAlarmStatus(active){
+	alarmStatus = active;
+	fs.writeFileSync(alarmStatusFile, alarmStatus);
 }
 
 
