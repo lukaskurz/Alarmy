@@ -1,3 +1,8 @@
+//---------------------------------
+//------- ALARMY CONTROLLER -------
+//Harwöck Florian, Kurz Lukas, Leeb Andreas, Leitenbauer Markus
+
+
 const http = require("http");
 
 const hostname = "127.0.0.1";
@@ -12,6 +17,7 @@ var client = mqtt.connect("mqtt://127.0.0.1:1883");
 
 var sensorList = [];
 
+//Global proxy secret file + random generated secret if no one exists
 const secretFilename = "secret.txt";
 var secret = new randExp("[a-zA-Z0-9]{32}^").gen();
 if (fs.existsSync(secretFilename)) {
@@ -22,6 +28,8 @@ if (fs.existsSync(secretFilename)) {
 
 var websocketClient = new webSocketClient();
 
+
+//http connection for secret inspection
 const server = http
 	.createServer((req, res) => {
 		res.statusCode = 200;
@@ -41,10 +49,12 @@ server.on("request", (req, res) => {
 	}
 });
 
+//websocket error logging
 websocketClient.on("connectFailed", function(error) {
 	console.log("Websocket connection error: " + error.toString());
 });
 
+//Websocket message handling for the websocket connection
 websocketClient.on("connect", function(connection) {
 	console.log("Websocket client Connected");
 	connection.on("error", function(error) {
@@ -55,11 +65,21 @@ websocketClient.on("connect", function(connection) {
 		console.log("Websocket Connection closed");
 	});
 
-	connection.on("message", function(message) {});
+	connection.on("message", function(message) {
+		switch(message.requestType){
+			case "sensorStatus":
+				console.log(message);
+				connection.send(JSON.stringify(getSensorsAsJSON()));
+		}
+	});
 });
 
-websocketClient.connect("ws://globproxy.htl.harwoeck.at:8082/controller/" + secret, "echo-protocol");
 
+//connection to the global proxy
+websocketClient.connect("ws://globproxy.htl.harwoeck.at:8082/controller/" + secret);
+
+
+//mqtt subscription on sensor, client and controller topics
 client.on("connect", function() {
 	console.log("Mqtt connected");
 	client.subscribe("p2/alarmy/+/+/sensor/#");
@@ -67,8 +87,11 @@ client.on("connect", function() {
 	client.subscribe("p2/alarmy/controller/#");
 });
 
+
+//Decision whether there comes an mqtt message from a sensor or a client
 client.on("message", (topic, message) => {
 	console.log(`${topic}: ${message}`);
+
 	if (topic.toString().match("p2/alarmy/[A-z0-9]+/[A-z0-9]+/sensor/.+")) {
 		handleSensorMessage(topic, message);
 	} else if (topic.toString().match("p2/alarmy/controller/.+")) {
@@ -76,21 +99,33 @@ client.on("message", (topic, message) => {
 	}
 });
 
+
+//handling different client messages
 function handleClientMessage(topic, message) {
 	console.log(topic.toString().toLocaleLowerCase());
 	if (topic.toString().toLocaleLowerCase() === "p2/alarmy/controller/sensorstatus".toLocaleLowerCase()) {
-		var jsObj = JSON.parse(
-			'{ "type":300, "timestamp": "' + new Date().toDateString() + " " + new Date().toTimeString() + '", "content": []}'
-		);
-
-		sensorList.forEach(function(element) {
-			jsObj.content.push(JSON.stringify(element));
-			console.log(element);
-		});
-		client.publish("p2/alarmy/client/sensorstatus", JSON.stringify(jsObj));
+		client.publish("p2/alarmy/client/sensorstatus", JSON.stringify(getSensorsAsJSON()));
 	}
 }
 
+//get the full ist of all sensors and prepare it as a json string with an 
+//array of JSON objcts packed in the content field
+function getSensorsAsJSON(){
+	var jsObj = JSON.parse(
+		'{ "type":300, "timestamp": "' + new Date().toDateString() + " " + new Date().toTimeString() + '", "content": []}'
+	);
+
+	sensorList.forEach(function(element) {
+		jsObj.content.push(JSON.stringify(element));
+		console.log(element);
+	});
+	return jsObj;
+}
+
+
+//handling the different types of sensor messages
+//activation -- sensor communicates with the controller for the firs time
+//alert -- sensor gets activated and sends an emergency alert to the controller
 function handleSensorMessage(topic, message) {
 	var MSGObj = JSON.parse(message);
 	var topArr = topic.split("/");
@@ -112,6 +147,8 @@ function handleSensorMessage(topic, message) {
 	}
 }
 
+
+//checks if a sensor is already inserted and activated in the sensor list
 function isSensorActivated(sensor) {
 	var found = false;
 	sensorList.forEach(function(element) {
