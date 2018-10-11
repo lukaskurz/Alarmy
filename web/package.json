@@ -2,6 +2,7 @@
   "name": "alarmy-web",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://alarmy.shorty.codes",
   "dependencies": {
     "@material-ui/icons": "^1.0.0",
     "axios": "^0.18.0",
