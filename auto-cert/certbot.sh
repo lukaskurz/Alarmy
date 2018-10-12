@@ -5,7 +5,8 @@ sudo docker run -it --rm \
 -v "/docker-volumes/var/log/letsencrypt:/var/log/letsencrypt" \
 certbot/certbot \
 certonly --webroot \
---email lukaskurz5@gmail.com --agree-tos --no-eff-email \
+--renew-by-default \
+--email lukaskurz5@gmail.com --text --agree-tos --no-eff-email \
 --webroot-path=/data/letsencrypt \
 --staging \
 -d shorty.codes -d www.shorty.codes
