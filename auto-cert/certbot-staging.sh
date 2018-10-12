@@ -8,4 +8,5 @@ certonly --webroot \
 --renew-by-default \
 --email lukaskurz5@gmail.com --text --agree-tos --no-eff-email \
 --webroot-path=/data/letsencrypt \
+--staging \
 -d shorty.codes -d www.shorty.codes
