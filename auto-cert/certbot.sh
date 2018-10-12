@@ -8,4 +8,4 @@ certonly --webroot \
 --email lukaskurz5@gmail.com --agree-tos --no-eff-email \
 --webroot-path=/data/letsencrypt \
 --staging \
--d shorty.codes www.shorty.codes
+-d shorty.codes -d www.shorty.codes
