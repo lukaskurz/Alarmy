@@ -14,3 +14,4 @@ WORKDIR /opt/alarmy
 COPY --from=build /opt/alarmy/build /usr/share/nginx/html
 
 EXPOSE 80
+EXPOSE 443
