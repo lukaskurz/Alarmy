@@ -118,7 +118,7 @@ websocketClient.on("connect", function(connection) {
 
 
 //connection to the global proxy
-websocketClient.connect("ws://globproxy.htl.harwoeck.at:8082/controller/" + secret);
+websocketClient.connect("ws://alarmy.shorty.codes:8082/controller/" + secret);
 
 
 //mqtt subscription on sensor, client and controller topics
