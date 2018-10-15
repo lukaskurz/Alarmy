@@ -33,7 +33,7 @@ Topic:
 p2/alarmy/255/sensor/pushsensor
 Message:
 {
-"type":"300,
+"type":300,
 "content":"alert"
 }
 #### AWAITED RESPONSE ON TOPIC p2/alarmy/
