@@ -20,25 +20,25 @@ var sensorList = [];
 const secretFilename = "secret.txt";
 var secret = new randExp("[a-zA-Z0-9]{32}^").gen();
 if (fs.existsSync(secretFilename)) {
-	secret = fs.readFileSync(secretFilename).toString();
+	secret = JSON.parse(fs.readFileSync(secretFilename).toString());
 } else {
-	fs.writeFileSync(secretFilename, secret);
+	fs.writeFileSync(secretFilename, JSON.stringify(secret));
 }
 
 const alarmStatusFile = "alarmstatus.txt";
 const alarmHistoryFile = "alarmhistory.json";
 var alarmStatus = false;
 if (fs.existsSync(alarmStatusFile)) {
-	alarmStatus = fs.readFileSync(alarmStatusFile).toString() === "true";
+	alarmStatus = JSON.parse(fs.readFileSync(alarmStatusFile).toString());
 } else {
-	fs.writeFileSync(alarmStatusFile, alarmStatus);
+	fs.writeFileSync(alarmStatusFile, JSON.stringify(alarmStatus));
 }
 var alarmTriggered = false;
 var alarmHistory = [];
 if (fs.existsSync(alarmHistoryFile)) {
 	alarmHistory =  JSON.parse(fs.readFileSync(alarmHistoryFile).toString());
 } else {
-	fs.writeFileSync(alarmHistoryFile, alarmHistory);
+	fs.writeFileSync(alarmHistoryFile, JSON.stringify(alarmHistory));
 }
 
 
