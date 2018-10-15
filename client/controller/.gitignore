@@ -1,1 +1,4 @@
 node_modules
+alarmhistory.json
+alarmstatus.txt
+secret.txt
