@@ -15,7 +15,7 @@ import AlarmComponent from "./../Alarm/Alarm";
 import "./App.css";
 
 const GLOBALPROXY = {
-	URL: "globproxy.htl.harwoeck.at",
+	URL: "alarmy.shorty.codes",
 	WEBSOCKETPORT: "8082",
 };
 
