@@ -14,7 +14,9 @@ COPY config.xml /opt/hivemq/conf/config.xml
  
 # Expose MQTT port
 EXPOSE 1883
-# Expse MQTT over Websocket port
+# Expose MQTT over Websocket port
 EXPOSE 8000
+# Expose webinterface
+EXPOSE 8080
 
 CMD /opt/hivemq/bin/run.sh

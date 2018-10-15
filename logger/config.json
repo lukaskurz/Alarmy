@@ -1,11 +1,11 @@
 {
 	"Mqtt": {
-		"Url": "localhost",
+		"Url": "alarmy-broker",
 		"AccessPort": 1883,
 		"HttpPort": 8080
 	},
 	"Database": {
-		"Url": "localhost",
+		"Url": "alarmy-db",
 		"Port": 3306,
 		"DatabaseName": "alarmy",
 		"Username": "nodelogger",

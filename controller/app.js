@@ -4,8 +4,6 @@
 
 
 const http = require("http");
-
-const hostname = "127.0.0.1";
 var randExp = require("randexp");
 const port = 1883;
 const fs = require("fs");
@@ -14,12 +12,12 @@ var mqtt = require("mqtt");
 var webSocketClient = require("websocket").client;
 var websocketConnection;
 var Sensor = require("./sensor.js");
-var client = mqtt.connect("mqtt://127.0.0.1:1883");
+var client = mqtt.connect("mqtt://alarmy-broker:1883");
 
 var sensorList = [];
 
 //Global proxy secret file + random generated secret if no one exists
-const secretFilename = "./data/secret.txt";
+const secretFilename = "secret.txt";
 var secret = new randExp("[a-zA-Z0-9]{32}^").gen();
 if (fs.existsSync(secretFilename)) {
 	secret = fs.readFileSync(secretFilename).toString();
@@ -27,8 +25,8 @@ if (fs.existsSync(secretFilename)) {
 	fs.writeFileSync(secretFilename, secret);
 }
 
-const alarmStatusFile = "./data/alarmstatus.txt";
-const alarmHistoryFile = "./data/alarmhistory.json";
+const alarmStatusFile = "alarmstatus.txt";
+const alarmHistoryFile = "alarmhistory.json";
 var alarmStatus = false;
 if (fs.existsSync(alarmStatusFile)) {
 	alarmStatus = fs.readFileSync(alarmStatusFile).toString() === "true";

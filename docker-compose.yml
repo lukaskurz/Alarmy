@@ -1,0 +1,65 @@
+version: "3.1"
+
+services:
+  # alarmy-web:
+  #   container_name: alarmy-web
+  #   image: alarmy-web:latest
+  #   build: ./web
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   networks:
+  #     - docker-network
+
+  alarmy-broker:
+    container_name: alarmy-broker
+    image: alarmy-broker:latest
+    build: ./broker
+    expose:
+      - 1883
+      - 8000
+      - 8080
+    ports:
+      - 1883:1883
+      - 8000:8000
+    networks:
+      - docker-network
+
+  alarmy-db:
+    container_name: alarmy-db
+    image: alarmy-db:latest
+    build: ./db
+    expose:
+      - 3306
+    ports:
+      - 3306:3306
+    networks:
+      - docker-network
+
+  alarmy-logger:
+    container_name: alarmy-logger
+    image: alarmy-logger:latest
+    build: ./logger
+    restart: always
+    expose:
+      - 1883
+      - 3306
+    networks:
+      - docker-network
+
+  alarmy-controller:
+    container_name: alarmy-controller
+    image: alarmy-controller:latest
+    build: ./controller
+    restart: always
+    ports:
+      - 3000:3000
+      - 8082:8082
+    expose: 
+      - 1883
+    networks:
+      - docker-network
+
+networks:
+  docker-network:
+    driver: bridge

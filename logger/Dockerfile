@@ -1,19 +1,15 @@
-FROM node:carbon as builder
+FROM node:carbon
 
-WORKDIR /tmp/alarmy/logger
+WORKDIR /opt/alarmy/logger
 
 COPY . .
 
 RUN npm install &&\
 	npm run-script build
 
-FROM node:carbon
-
-WORKDIR /usr/src/alarmy/logger
-
-COPY --from=builder /tmp/alarmy/logger/build ./build/
-COPY ./package.json ./
-COPY ./config.json ./config.json
-
+# For database
+EXPOSE 3306
+# For mqtt
+EXPOSE 1883
 
 CMD npm start
