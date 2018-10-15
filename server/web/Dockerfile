@@ -1,18 +1,21 @@
 FROM node:carbon as build
 
-WORKDIR /opt/alarmy
+WORKDIR /opt/alarmy/web
 
-COPY ./ /opt/alarmy
+COPY . .
 
 RUN npm install &&\
     npm run build
 
 FROM nginx:latest
 
-WORKDIR /opt/alarmy
+WORKDIR /opt/alarmy/web
 
 COPY --from=build /opt/alarmy/build /usr/share/nginx/html
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+
+RUN mkdir dh-param &&\
+    openssl dhparam -out ./dh-param/dhparam-4096.pem 4096
 
 EXPOSE 80
 EXPOSE 443
