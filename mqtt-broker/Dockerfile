@@ -17,4 +17,4 @@ EXPOSE 1883
 # Expse MQTT over Websocket port
 EXPOSE 8000
 
-CMD ["/opt/hivemq/bin/run.sh"]
+CMD /opt/hivemq/bin/run.sh

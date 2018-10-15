@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "node ./app.js"
+  },
   "dependencies": {
     "mqtt": "^2.18.0",
     "randexp": "^0.4.9",

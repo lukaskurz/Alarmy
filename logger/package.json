@@ -6,7 +6,7 @@
   "types": "lib/index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./out/index.js",
+    "start": "node ./build/index.js",
     "build:nodemon": "nodemon --exec ./node_modules/.bin/ts-node -- ./src/index.ts",
     "build:tsc": "tsc --watch",
     "build": "tsc"
